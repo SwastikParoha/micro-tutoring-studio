@@ -3,10 +3,10 @@
 {% block body %}
 <h1>Invoices &amp; quotes</h1>
 <div class="btn-row">
-  <a class="btn small {{ 'secondary' if status }}" href="{{ url_for('invoices_all') }}">All</a>
-  <a class="btn small {{ 'secondary' if status != 'draft' }}" href="{{ url_for('invoices_all', status='draft') }}">Draft</a>
-  <a class="btn small {{ 'secondary' if status != 'sent' }}" href="{{ url_for('invoices_all', status='sent') }}">Sent</a>
-  <a class="btn small {{ 'secondary' if status != 'paid' }}" href="{{ url_for('invoices_all', status='paid') }}">Paid</a>
+  <a class="btn small {{ 'secondary' if status_filter }}" href="{{ url_for('invoices_all') }}">All</a>
+  <a class="btn small {{ 'secondary' if status_filter != 'draft' }}" href="{{ url_for('invoices_all', status='draft') }}">Draft</a>
+  <a class="btn small {{ 'secondary' if status_filter != 'sent' }}" href="{{ url_for('invoices_all', status='sent') }}">Sent</a>
+  <a class="btn small {{ 'secondary' if status_filter != 'paid' }}" href="{{ url_for('invoices_all', status='paid') }}">Paid</a>
 </div>
 
 {% if invoices %}
@@ -26,7 +26,7 @@
   </table>
 </div>
 {% else %}
-<div class="card muted">No invoices{% if status %} with status “{{ status }}”{% endif %} yet.
+<div class="card muted">No invoices{% if status_filter %} with status "{{ status_filter }}"{% endif %} yet.
   Create one from a pupil's page.</div>
 {% endif %}
 {% endblock %}

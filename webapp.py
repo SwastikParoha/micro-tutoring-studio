@@ -534,8 +534,9 @@ def invoice_pdf(invoice_id: int):
 @app.route("/admin/invoices")
 @admin_required
 def invoices_all():
-    status = request.args.get("status") or None
-    return render_template("invoices.html", invoices=db.all_invoices(status), status=status)
+    status_filter = request.args.get("status") or None
+    return render_template("invoices.html", invoices=db.all_invoices(status_filter),
+                           status_filter=status_filter)
 
 
 # ---- progress reports ------------------------------------------- #
@@ -935,7 +936,7 @@ def parent_home():
     reports = [r for r in db.list_reports(sid) if r["status"] == "sent"]
     return render_template("parent_home.html", pupil=p, enrol=en,
                            monthly=db.monthly_value(en) if en else 0,
-                           pay=db.payment_summary(sid), status=db.current_status(sid),
+                           pay=db.payment_summary(sid), live_status=db.current_status(sid),
                            upcoming=db.list_sessions(sid, upcoming=True),
                            past=db.list_sessions(sid, upcoming=False)[:10],
                            reports=reports,

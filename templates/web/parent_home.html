@@ -6,14 +6,14 @@
   · your family dashboard</p>
 
 <!-- ===== live status ===== -->
-{% set s = status.session %}
-<div class="card status-banner status-{{ status.state }}">
-  {% if status.state == 'in_session' %}
+{% set s = live_status.session %}
+<div class="card status-banner status-{{ live_status.state }}">
+  {% if live_status.state == 'in_session' %}
     <b>In class now</b> — {{ pupil.full_name }} arrived at {{ s.arrived_at[-5:] }}.
-  {% elif status.state == 'finished_today' %}
+  {% elif live_status.state == 'finished_today' %}
     <b>Class finished</b> — arrived {{ s.arrived_at[-5:] if s.arrived_at }}, left
     {{ s.departed_at[-5:] if s.departed_at }} today.
-  {% elif status.state == 'upcoming' %}
+  {% elif live_status.state == 'upcoming' %}
     <b>Next class</b> — {{ s.starts_at[:16].replace('T',' ') }} ({{ s.duration_min }} min{% if s.subject %}, {{ s.subject }}{% endif %}).
   {% else %}
     <b>No class booked.</b> <a href="{{ url_for('parent_book') }}">Book one now →</a>

@@ -242,6 +242,10 @@ def test_webapp_routes_smoke():
     _check("web: calendar renders", c.get("/admin/calendar").status_code == 200)
     _check("web: availability renders", c.get("/admin/availability").status_code == 200)
     _check("web: study material page renders", c.get("/admin/study").status_code == 200)
+    _check("web: business name shows on admin dashboard (no template var collision)",
+           config.BUSINESS_NAME.encode() in c.get("/admin").data)
+    _check("web: business name shows on invoices page (regression: status= var collision)",
+           config.BUSINESS_NAME.encode() in c.get("/admin/invoices").data)
 
     sid = db.create_student(full_name="Web Parent Kid", year_group=3)
     r = c.post(f"/admin/pupil/{sid}/parent-login", follow_redirects=False)
@@ -253,6 +257,8 @@ def test_webapp_routes_smoke():
     c.post("/login", data={"username": pu["username"], "password": "familypass"})
     _check("web: parent lands on /parent", c.get("/").headers["Location"].endswith("/parent"))
     _check("web: parent dashboard renders", c.get("/parent").status_code == 200)
+    _check("web: business name shows on parent dashboard (regression: status= var collision)",
+           config.BUSINESS_NAME.encode() in c.get("/parent").data)
     _check("web: parent booking page renders", c.get("/parent/book").status_code == 200)
     _check("web: parent blocked from /admin", c.get("/admin", follow_redirects=False).status_code == 302)
     _check("web: parent blocked from another pupil's data (403/redirect)",
