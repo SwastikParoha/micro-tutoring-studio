@@ -1,229 +1,177 @@
 # Micro-Tutoring Studio
 
-Backend and multi-agent pipeline for a small, local primary-school tutoring
-business. It turns a tutor's demo-lesson assessment into a **personalised,
-print-ready weekly PDF workbook**, grounded in the **official UK National
-Curriculum** (Oak National Academy).
+This started as a way to stop hand-writing worksheets every week for a small
+tutoring business. It's grown into most of what that business actually
+needs day to day: a place to register pupils and track how they're doing, an
+AI pipeline that turns a quick assessment into a proper personalised
+workbook, billing and invoices, a booking calendar, and a portal parents can
+log into to see their own kid's plan, payments and progress.
 
-Subjects covered: **maths, English, science, geography, history** (plus art,
-computing, music, PE, DT, languages) — Key Stages 1 and 2.
+Covers maths, English, science, geography and history (plus art, computing,
+music, PE, DT and languages), Key Stages 1 and 2, grounded in the real UK
+National Curriculum — not just whatever a model happens to remember about it.
 
----
-
-## Get started
+## Running it
 
 ```bash
 pip install -r requirements.txt
-
-python main.py setup      # one-time: downloads curriculum data (~40 MB) + creates the database
-python main.py serve      # opens the web interface in your browser
+python main.py setup      # downloads the curriculum data + study material, makes the database
+python main.py serve      # http://127.0.0.1:5000
 ```
 
-No API keys needed to run — see [Optional API keys](#optional-api-keys).
+No API key required — it works without one, just with simpler AI-written
+content. First run prints an admin login in the terminal (change the
+password from the Account page once you're in).
 
-### The web interface (for tutors — no command line)
+There's a CLI too if you'd rather not touch the browser (`python main.py
+--help`), but honestly the web interface is what you want — a tutor isn't
+going to run `generate-week --difficulty stretch` from a terminal.
 
-`python main.py serve` starts a small local web app at **http://127.0.0.1:5000**
-and opens it for you. From there you can:
+## What's actually in here
 
-* **Add a pupil** — paste the demo-lesson notes *and/or upload a photo* of their
-  work; the AI reads the photo and works out where they are
-* **Log a weekly result** — on each pupil's page: type a score, or upload a photo
-  of their finished practice. The AI marks it and updates the suggested difficulty
-* **New workbook** — pick the pupil, subject, Key Stage and difficulty (pre-set
-  from their recent results), browse or type a topic, click *Build workbook*
-* **Download** the finished PDF, and see each pupil's score history and level
+**Admin side** — register a pupil, run an assessment off typed notes or a
+photo of their finished work (Gemini reads the handwriting), generate a
+workbook in one click, manage their plan and pricing, raise invoices, write
+progress reports (AI drafts them, you edit before sending), run the
+calendar and mark attendance.
 
-Everything runs on your own machine. Photos and notes go only to Google (Gemini)
-if you've added a key, and nowhere else. Close the terminal to stop it.
+**Parent side** — separate login, one family sees exactly one child. Current
+plan, what's been paid, what's due, a live "in class now / finished today"
+status, and self-service booking against whatever slots the tutor's made
+available. Book past your plan's included classes and it gets flagged as an
+extra, priced up front, and lands on the next invoice automatically.
 
-### The workbook
+**The workbook itself** is pupil-only — no tutor content leaking into it.
+A page of revision notes (written for roughly a 7-year-old's reading level,
+grounded in the actual curriculum text for that topic and year group), a
+page or two of practice questions with space to work in, and the answers on
+a separate page so it can be printed double-sided without the pupil ever
+seeing them. Difficulty (support / core / stretch) is suggested from recent
+scores, or you can just pick it.
 
-Each PDF is **for the pupil only** — no tutor notes on it. Two parts:
+This took a few rewrites to get right — the first version mixed teacher and
+pupil content together and wasted whole pages doing basically nothing. Not
+proud of that one.
 
-1. **Revision notes** (1 page) — the big idea, steps to remember, key words, "easy
-   to get wrong", and a quick self-check. Written for a 7–9 year old to read alone
-   and revise before a school test.
-2. **Practice** — 5–10 questions, each with a half-page of ruled working space,
-   then an answers page at the back ("try first, then check").
+## The AI pipeline
 
-**Difficulty** is *support* (easier), *core* (year-group standard) or *stretch*
-(a challenge). It's chosen automatically from the pupil's recent scores — over
-~85% moves to stretch, under ~55% drops to support — or set it yourself.
-
-### Or use the terminal
-
-```bash
-python main.py demo       # watch it build a workbook for a sample pupil
-python main.py doctor     # check everything is wired up
-```
-
----
-
-## Everyday use
-
-```bash
-# 1. Add a pupil from demo-lesson notes and/or a photo of their work
-python main.py onboard --notes-file notes.txt
-python main.py onboard --name "Ava" --year 3 --image ava_worksheet.jpg
-
-# 2. See what you can teach
-python main.py topics --subject science --keystage 2 --search "water cycle"
-
-# 3. Build this week's workbook  (difficulty auto-set from recent results)
-python main.py generate-week --student "Ava Patel" --topic "Rivers" --keystage 2 --subject geography
-python main.py generate-week --student "Ava Patel" --topic "Fractions" --difficulty stretch
-
-# 4. After the week - log how they did (updates the difficulty for next time)
-python main.py log-result --student "Ava Patel" --score 82
-python main.py log-result --student "Ava Patel" --image ava_week2.jpg
-
-# CRM
-python main.py students
-python main.py student "Ava Patel"
-```
-
-Every command has `--help`. Run `python main.py` on its own for a guided overview.
-
----
-
-## How it works
+Instead of one prompt trying to do everything, it's five smaller steps that
+each hand off to the next:
 
 ```
-  onboard:   tutor notes ──►  ASSESSOR  ──►  structured JSON profile  ──►  SQLite CRM
+notes/photo → ASSESSOR → score, weak points, suggested difficulty
 
-  generate-week:
-     topic + Key Stage
-        │
-        ▼
-   ┌──────────┐   ┌────────────────┐   ┌───────────┐   ┌────────────────┐
-   │ INGESTOR │──►│ CURRICULUM     │──►│ EXPLAINER │──►│ PROBLEM SETTER │
-   │ (Oak)    │   │ MAPPER         │   │ (Markdown)│   │ 70% baseline / │
-   │objectives│   │ strategy +     │   │           │   │ 30% targeted   │
-   │+ misconc.│   │ personalisation│   │           │   │                │
-   └──────────┘   └────────────────┘   └───────────┘   └────────────────┘
-        └────────────  grounding packet passed to every agent  ───────────┘
-                                      │
-                                      ▼
-                   HTML (Jinja2)  ──►  PDF (WeasyPrint / Chromium)
-                                      │
-                                      ▼
-                     outputs/<pupil>_<topic>_<date>.pdf  +  WeeklyBooks row
+topic → INGESTOR (real curriculum data) → MAPPER (this week's focus)
+      → EXPLAINER (writes the notes) → PROBLEM SETTER (writes the questions)
+      → HTML → PDF
 ```
 
-### The five agents (`agents/`)
-
-| Agent | File | Role |
+| Step | File | Does what |
 |---|---|---|
-| **The Ingestor** | `curriculum_ingestor.py` | Fetches the official learning objectives + known pupil misconceptions for the week's topic. |
-| **The Assessor** | `assessor_agent.py` | Parses raw demo-lesson notes into JSON: `weak_points`, `strengths`, pupil details. |
-| **The Curriculum Mapper** | `curriculum_agent.py` | UK curriculum data + pupil profile → a tailored weekly teaching strategy. |
-| **The Explainer** | `explainer_agent.py` | Writes a child-friendly Markdown mini-lesson from the strategy. |
-| **The Problem Setter** | `problem_setter.py` | 5–10 practice questions: 70% at the UK baseline, 30% targeting the pupil's weak points. |
+| Assessor | `agents/assessor_agent.py` | Reads notes or a photo, scores the pupil, flags what they're struggling with |
+| Ingestor | `agents/curriculum_ingestor.py` | Pulls the real curriculum objectives + common misconceptions for the topic |
+| Curriculum Mapper | `agents/curriculum_agent.py` | Decides what this specific pupil needs to focus on this week |
+| Explainer | `agents/explainer_agent.py` | Writes the actual revision notes, in plain language |
+| Problem Setter | `agents/problem_setter.py` | 5–10 questions, ~70% standard / 30% aimed at the pupil's weak spots |
 
-Orchestration: `agents/crew.py` runs a strict sequential hand-off. By default it
-calls the agent modules directly; pass `--crewai` to run the same roles through a
-CrewAI `Crew` (`Process.sequential`).
+`agents/crew.py` runs these in order. `--crewai` on `generate-week` routes
+the same steps through a CrewAI `Crew` instead, if you want that.
 
-### Where the curriculum comes from
+### Where the curriculum content actually comes from
 
-The Ingestor tries three sources, in order:
+Not made up, and not just Oak either — three layers, stacked:
 
-1. **Oak National Academy API (live)** — needs `OAK_API_KEY`.
-2. **Oak National Academy bulk dataset (local, offline)** — a 40 MB SQLite file
-   downloaded by `python main.py setup` from the
-   [Oak Curriculum Ontology release](https://github.com/oaknational/oak-curriculum-ontology/releases)
-   (Open Government Licence v3.0, no key). Same content as the API:
-   50,948 key learning points, 11,207 misconceptions, all NC subjects.
-3. **Bundled sample data** (`data/oak_mock_curriculum.json`) — a handful of units
-   per subject so the app still runs if the download hasn't happened.
+1. **Oak National Academy** — either their live API (`OAK_API_KEY`) or the
+   offline bulk dataset `setup` downloads (~40MB, Open Government Licence).
+2. **The real UK Government curriculum documents** — `python main.py setup`
+   also pulls down 45 actual gov.uk PDFs: the National Curriculum programme
+   of study for every subject, plus real past SATs papers and mark schemes.
+   Same free-to-reuse licence. This is what actually grounds the wording in
+   the revision notes, not just Oak's summary of it. Browse them from
+   Admin → Study material.
+3. **A small bundled sample** if neither of the above has been downloaded
+   yet, so the app doesn't just break with nothing set up.
 
-`python main.py doctor` and `config` tell you which source is active.
+`python main.py doctor` tells you what's currently active.
 
-### With vs. without a Gemini key
+### With / without a Gemini key
 
-| | Assessor | Mapper / Explainer / Problem Setter |
+Without one, everything still works — a deterministic generator writes
+honest, curriculum-accurate (if plainer) notes and questions. With
+`GEMINI_API_KEY` set, Gemini writes the strategy, the notes and the
+questions, and can read photos. If the configured model runs out of its
+daily free quota mid-session, it quietly tries a couple of alternate models
+before giving up and falling back — you shouldn't ever see a hard failure
+from this.
+
+> Free AI Studio keys are capped at roughly 20 requests/day, and one
+> workbook uses 2–3 of them. It resets daily. `doctor` will tell you if the
+> key's actually responding right now.
+
+## Config
+
+`python main.py setup` creates `.env` for you from `.env.example` — fill in
+whatever you have:
+
+| Var | Get it from | What it changes |
 |---|---|---|
-| **`GEMINI_API_KEY` set** | Gemini 1.5 Pro parses the notes | Gemini writes the strategy, lesson and questions |
-| **No key** | deterministic keyword parser | deterministic generators that present the real Oak objectives, vocabulary (with Oak's own definitions) and misconceptions, and are honest that the tutor teaches the concept in the session |
+| `GEMINI_API_KEY` | aistudio.google.com/apikey | AI-written lessons/questions instead of the built-in generator |
+| `GEMINI_MODEL` | — | defaults to `gemini-flash-latest` |
+| `OAK_API_KEY` | open-api.thenational.academy | live curriculum API + real lesson transcripts, instead of just the offline dataset |
+| `BUSINESS_NAME` / `TUTOR_NAME` | — | shown on the workbooks, invoices, reports |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | — | your admin login, created on first run |
 
-Either way the workbook is produced and is grounded in the same curriculum data.
+## PDF generation
 
----
+Tries WeasyPrint first, falls back to headless Chromium (Playwright) if
+WeasyPrint's not set up right (which, on Windows without GTK, it usually
+isn't), and if neither works it just hands back the rendered HTML so you can
+print-to-PDF from a browser instead of getting nothing. `doctor` tells you
+which one it's actually using.
 
-## Optional API keys
+## Database
 
-Create `.env` (`setup` does this) and fill in what you have:
+One SQLite file, `database/tutoring.db`. The main tables:
 
-| Var | Where to get it | Effect |
-|---|---|---|
-| `GEMINI_API_KEY` | https://aistudio.google.com/apikey | richer, fully-written lessons and questions |
-| `GEMINI_MODEL` | — | defaults to `gemini-3.5-flash`; try `gemini-flash-latest` or `gemini-pro-latest`. If one model is out of daily quota the app auto-tries a couple of alternates. |
-| `OAK_API_KEY` | https://open-api.thenational.academy/docs/about-oaks-api/api-keys | live curriculum API instead of the local dataset |
-
-`.env.example` has all the settings with comments.
-
-> **Gemini free tier:** a free AI Studio key is capped at ~20 requests/day. One
-> workbook uses 2–3 requests, so you'll get ~7 AI-written workbooks per day before
-> it switches back to the built-in generator until the quota resets. Enable
-> billing in Google AI Studio for higher limits. `python main.py doctor` tells you
-> if the key is currently working.
-
----
-
-## PDF engine
-
-`WeasyPrint` is tried first (needs the GTK runtime — easy on Linux/macOS, extra
-setup on Windows). If it's unavailable the pipeline automatically falls back to
-**headless Chromium via Playwright** (`playwright install chromium`), and failing
-that writes the rendered HTML so you can "Print to PDF" from a browser. `doctor`
-reports which engine you have.
-
----
-
-## Database (`database/schema.sql`)
-
-| Table | Purpose |
+| Table | What's in it |
 |---|---|
-| `Students` | CRM: name, year group, key stage, interests, guardian contact |
-| `Assessments` | one row per demo: raw notes, score, strengths/weak-points JSON, full Assessor output |
-| `WeeklyBooks` | one row per workbook: curriculum packet, strategy, explanation, questions, PDF path |
+| `Students` | the CRM record — name, year, guardian details, status (enquiry → trial → active → paused → ended) |
+| `Enrolments` | a pupil's plan — rate, classes/month, subjects, payment method |
+| `Invoices` | auto-numbered, draft/sent/paid |
+| `Assessments` / `WeeklyBooks` | every assessment and every generated workbook, with the full AI output stored |
+| `Sessions` / `Availability` | the booking calendar |
+| `Users` | logins — role (admin/parent), parents tied to exactly one student |
 
----
+Schema changes are additive (`database/schema.sql` + a small migrations list
+in `db_manager.py`), so running setup again on an existing database is safe.
 
-## Layout
+## Deploying this somewhere
 
-```
-agents/
-  curriculum_ingestor.py   The Ingestor  (3-tier retrieval, normalises to CurriculumPacket)
-  oak_local.py             offline queries against the Oak bulk SQLite dataset
-  assessor_agent.py        The Assessor
-  curriculum_agent.py      The Curriculum Mapper
-  explainer_agent.py       The Explainer
-  problem_setter.py        The Problem Setter
-  crew.py                  sequential orchestration (direct + CrewAI)
-  llm.py                   Gemini helper
-  textutil.py              shared text tidy-ups for the no-LLM generators
-database/   schema.sql + db_manager.py (CRUD) + tutoring.db (created)
-templates/  workbook_template.html   (kid-friendly A4 print CSS)
-data/       oak_mock_curriculum.json   +   oak-curriculum.sqlite (downloaded)
-outputs/    generated .pdf / .html / .json
-config.py   env-driven configuration
-pdf_builder.py   Markdown + questions -> HTML (Jinja2) -> PDF
-main.py     CLI  (setup / serve / demo / doctor / onboard / generate-week / ...)
-webapp.py   Flask web interface  (python main.py serve)
-templates/web/   web pages + style.css
-tests/test_smoke.py   end-to-end smoke tests  (python tests/test_smoke.py)
-```
-
----
+There's a full non-technical walkthrough in `docs/` for hosting this for
+free and permanently (PythonAnywhere or Oracle Cloud, with a custom domain
+if you want one) — the short version is: avoid Railway/Render's free tiers,
+they sleep the app.
 
 ## Tests
 
 ```bash
-python tests/test_smoke.py        # or: python -m pytest
+python tests/test_smoke.py
 ```
 
-Covers the offline retrieval tiers, all five subjects, the Oak dataset queries,
-the deterministic pipeline end-to-end, and the Gemini code paths (stubbed, no
-network).
+Covers the curriculum pipeline end to end (with and without a real Gemini
+key, the second one stubbed), the CRM/billing math, auth and access control
+(a parent account genuinely cannot load another family's data — there's a
+test for that specifically), and the booking/calendar logic. ~100 checks,
+no network calls.
+
+## Layout, roughly
+
+```
+agents/       the five AI steps, the curriculum lookup, the Gemini wrapper, the study-material catalog
+database/     schema.sql + db_manager.py (all the DB access lives here, nowhere else)
+webapp.py     the whole Flask app — admin routes, parent routes, auth
+templates/    workbook_template.html (the printable PDF) + templates/web/ (the actual site)
+pdf_builder.py    HTML -> PDF, with the fallback chain
+main.py       the CLI, if you want it
+tests/test_smoke.py
+```
