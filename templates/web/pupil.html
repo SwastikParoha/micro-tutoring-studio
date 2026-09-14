@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}{{ pupil.full_name }} · {{ status.business }}{% endblock %}
+{% block body %}
+<div class="section-head">
+  <h1>{{ pupil.full_name }}
+    <span class="pill-status {{ pupil.status or 'enquiry' }}">{{ pupil.status or 'enquiry' }}</span></h1>
+  <a href="{{ url_for('pupil_edit', pupil_id=pupil.id) }}">Edit details</a>
+</div>
+<p class="sub">
+  Year {{ pupil.year_group or '?' }} · Key Stage {{ pupil.key_stage or '?' }}
+  {% if pupil.age %}· age {{ pupil.age }}{% endif %}
+  {% if pupil.school %}· {{ pupil.school }}{% endif %}<br>
+  {% if pupil.guardian_name %}{{ pupil.guardian_relationship or 'Guardian' }}: <b>{{ pupil.guardian_name }}</b>
+    {% if pupil.guardian_contact %}· {{ pupil.guardian_contact }}{% endif %}
+    {% if pupil.guardian_email %}· {{ pupil.guardian_email }}{% endif %}<br>{% endif %}
+  {% if pupil.goals %}Wants: {{ pupil.goals }}. {% endif %}
+  {% if pupil.interests %}Likes: {{ pupil.interests }}.{% endif %}
+</p>
+
+<!-- ===== programme / plan ===== -->
+<div class="card quote-box">
+  <div class="section-head" style="margin:0 0 6px">
+    <h2 style="margin:0">Programme</h2>
+    <a href="{{ url_for('enrol', pupil_id=pupil.id) }}">{{ 'Change plan' if enrol else 'Add to programme' }}</a>
+  </div>
+  {% if enrol %}
+    <div class="big">£{{ '%.2f'|format(monthly) }} / month</div>
+    <div class="muted">
+      {{ enrol.classes_per_month }} classes/month · {{ enrol.class_length_min }} min each · £{{ enrol.hourly_rate|round|int }}/hr
+      {% for s in enrol.subjects_json or [] %}{% if s.classes %} · {{ s.classes }} {{ s.subject }}{% endif %}{% endfor %}
+      · pay by {{ enrol.payment_method }} ({{ enrol.payment_schedule }})
+    </div>
+    <div class="btn-row" style="margin-top:10px">
+      <a class="btn small" href="{{ url_for('invoice_new', pupil_id=pupil.id) }}">Create quote / invoice</a>
+    </div>
+  {% else %}
+    <p class="muted" style="margin:0">Not on the programme yet. Add a plan once the parent confirms —
+    you'll get a monthly quote and can raise invoices.</p>
+    <div class="btn-row" style="margin-top:10px">
+      <a class="btn" href="{{ url_for('enrol', pupil_id=pupil.id) }}">Add to programme</a>
+    </div>
+  {% endif %}
+
+  <hr style="border:0;border-top:1px dashed #bfe3f5;margin:14px 0">
+  <div class="section-head" style="margin:0">
+    <b>Family login</b>
+    {% if parent_user %}<span class="muted">username <code>{{ parent_user.username }}</code>
+      {% if parent_user.last_login %}· last signed in {{ parent_user.last_login }}{% else %}· not used yet{% endif %}</span>{% endif %}
+  </div>
+  <form method="post" action="{{ url_for('parent_login_make', pupil_id=pupil.id) }}" style="margin-top:8px"
+        onsubmit="return confirm('{{ 'Reset the family password? The old one stops working.' if parent_user else 'Create a login for this family?' }}')">
+    <button class="btn small {{ 'secondary' if parent_user }}" type="submit">
+      {{ 'Reset family password' if parent_user else 'Create family login' }}</button>
+  </form>
+</div>
+
+<!-- ===== classes & attendance ===== -->
+<div class="card">
+  <div class="section-head" style="margin:0 0 8px"><h2 style="margin:0">Classes &amp; attendance</h2></div>
+  {% if extras_pending %}
+  <div class="flash ok" style="margin-bottom:10px">
+    £{{ '%.2f'|format(extras_pending) }} in extra classes booked by the family is not yet invoiced.
+    <a href="{{ url_for('invoice_new', pupil_id=pupil.id) }}">Create an invoice</a> — the extra classes
+    are added automatically.
+  </div>
+  {% endif %}
+  <form method="post" action="{{ url_for('admin_book', pupil_id=pupil.id) }}" class="row" style="align-items:end">
+    <div><label for="starts_at">Add a class</label>
+      <input type="datetime-local" id="starts_at" name="starts_at"></div>
+    <div style="flex:0"><label for="bsubject">Subject</label>
+      <select id="bsubject" name="subject"><option value="">—</option>
+        {% for s in subjects %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select></div>
+    <div style="flex:0"><label class="hint" style="white-space:nowrap">
+      <input type="checkbox" name="billable" value="1" style="width:auto"> charge as extra</label></div>
+    <div style="flex:0"><button class="btn small" type="submit">Book</button></div>
+  </form>
+
+  {% if upcoming_sessions %}
+  <table style="margin-top:12px">
+    <tr><th>When</th><th>Subject</th><th>Status</th><th>Attendance</th></tr>
+    {% for c in upcoming_sessions %}
+    <tr>
+      <td>{{ c.starts_at[:16] }}</td>
+      <td>{{ c.subject or '—' }}
+        {% if c.billable %}<span class="pill high" title="charged as an extra">extra £{{ c.charge_amount|round|int }}{% if c.invoice_id %} · invoiced{% endif %}</span>{% endif %}</td>
+      <td><span class="pill-status {{ 'active' if c.status in ('booked','arrived') else 'draft' }}">{{ c.status }}</span>
+        {% if c.booked_by == 'parent' %}<span class="muted"> family</span>{% endif %}</td>
+      <td class="cal-actions">
+        {% if c.status == 'booked' %}
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='arrived') }}">
+          <button class="btn small" type="submit">Arrived</button></form>
+        {% elif c.status == 'arrived' %}
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='departed') }}">
+          <button class="btn small" type="submit">Departed</button></form>
+        {% endif %}
+        {% if c.status in ('booked','arrived') %}
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='cancel') }}"
+              onsubmit="return confirm('Cancel this class?')">
+          <button class="btn small secondary" type="submit">Cancel</button></form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted" style="margin:12px 0 0">No upcoming classes booked.</p>
+  {% endif %}
+
+  {% if past_sessions %}
+  <p class="muted" style="margin:14px 0 4px"><b>Recent</b></p>
+  <table>
+    {% for c in past_sessions %}
+    <tr><td>{{ c.starts_at[:16] }}</td><td>{{ c.subject or '—' }}</td>
+      <td>{{ 'Attended' if c.status == 'departed' else c.status }}</td></tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</div>
+
+<!-- ===== next workbook ===== -->
+<div class="card" style="border-color:#bfe3f5;background:#f4fbff">
+  <h2 style="margin-top:0">Next workbook</h2>
+  <p>Suggested level:
+    <span class="pill {{ 'high' if reco_level=='stretch' else 'low' if reco_level=='support' else 'medium' }}">{{ reco_level }}</span>
+    <span class="muted">— {{ reco_reason }}</span></p>
+  <div class="btn-row">
+    <a class="btn" href="{{ url_for('generate', pupil=pupil.id) }}">Make this week's workbook</a>
+    <a class="btn secondary" href="{{ url_for('report_new', pupil_id=pupil.id) }}">Create progress report</a>
+    <a class="btn secondary" href="{{ url_for('onboard') }}">New assessment</a>
+  </div>
+</div>
+
+<!-- ===== log a result ===== -->
+<div class="card">
+  <h2 style="margin-top:0">Log this week's result</h2>
+  <p class="hint">Upload a photo of their finished practice, or type a score. The AI checks how they did
+    and updates the suggested level.</p>
+  <form method="post" action="{{ url_for('log_result', pupil_id=pupil.id) }}"
+        enctype="multipart/form-data" data-working="Checking their work…">
+    <div class="row">
+      <div><label for="score">Score out of 100 <span class="muted">(optional)</span></label>
+        <input type="number" id="score" name="score" min="0" max="100"></div>
+      <div><label for="lsubject">Subject <span class="muted">(optional)</span></label>
+        <select id="lsubject" name="subject"><option value="">—</option>
+          {% for s in subjects %}<option value="{{ s }}">{{ s }}</option>{% endfor %}</select></div>
+    </div>
+    <label for="lworksheet">Photo of their finished work <span class="muted">(optional)</span></label>
+    <input type="file" id="lworksheet" name="worksheet" accept="image/*">
+    <label for="lnotes">Anything you noticed <span class="muted">(optional)</span></label>
+    <input type="text" id="lnotes" name="notes">
+    <div class="btn-row"><button class="btn" type="submit">Log result</button></div>
+  </form>
+</div>
+
+{% if scores|length > 1 %}
+<div class="card">
+  <h3 style="margin-top:0">Scores</h3>
+  <table>
+    <tr>{% for d, s in scores %}<th>{{ d }}</th>{% endfor %}</tr>
+    <tr>{% for d, s in scores %}<td><b>{{ s|round|int }}%</b></td>{% endfor %}</tr>
+  </table>
+</div>
+{% endif %}
+
+<!-- ===== invoices ===== -->
+{% if invoices %}
+<div class="section-head"><h2>Invoices</h2></div>
+<div class="card"><table>
+  <tr><th>Number</th><th>Period</th><th>Status</th><th>Total</th></tr>
+  {% for i in invoices %}
+  <tr><td><a href="{{ url_for('invoice_view', invoice_id=i.id) }}">{{ i.number }}</a></td>
+      <td>{{ i.period }}</td><td><span class="pill-status {{ i.status }}">{{ i.status }}</span></td>
+      <td>£{{ '%.2f'|format(i.total) }}</td></tr>
+  {% endfor %}
+</table></div>
+{% endif %}
+
+<!-- ===== reports ===== -->
+{% if reports %}
+<div class="section-head"><h2>Progress reports</h2></div>
+<div class="card"><table>
+  <tr><th>Period</th><th>Status</th><th>Summary</th><th></th></tr>
+  {% for r in reports %}
+  <tr><td><a href="{{ url_for('report_view', report_id=r.id) }}">{{ r.period }}</a></td>
+      <td><span class="pill-status {{ r.status }}">{{ r.status }}</span></td>
+      <td class="muted">{{ r.summary }}</td>
+      <td><a class="btn small" href="{{ url_for('report_pdf', report_id=r.id) }}">PDF</a></td></tr>
+  {% endfor %}
+</table></div>
+{% endif %}
+
+<!-- ===== assessments ===== -->
+<div class="section-head"><h2>Assessments &amp; weekly results</h2></div>
+{% for a in assessments %}
+<div class="card">
+  <p class="muted" style="margin-top:0">
+    {{ a.assessed_on }} · {{ a.kind or 'diagnostic' }} · {{ a.subject }}
+    {% if a.overall_score is not none %}· score {{ a.overall_score|round|int }}%{% endif %}
+    {% if a.difficulty_reco %}· suggested: {{ a.difficulty_reco }}{% endif %}
+  </p>
+  {% set an = a.analysis_json or {} %}
+  {% if an.strengths %}<p><b>Doing well</b></p>
+    <ul class="list-plain">{% for s in an.strengths %}<li>+ {{ s }}</li>{% endfor %}</ul>{% endif %}
+  {% if an.weak_points %}<p><b>To work on</b></p>
+    <ul class="list-plain">
+      {% for w in an.weak_points %}<li>{% if w is mapping %}
+        <span class="pill {{ w.severity }}">{{ w.severity or 'note' }}</span> {{ w.topic }}
+        {% if w.detail and w.detail != w.topic %} — <span class="muted">{{ w.detail }}</span>{% endif %}
+      {% else %}{{ w }}{% endif %}</li>{% endfor %}
+    </ul>{% endif %}
+</div>
+{% else %}
+<div class="card muted">Nothing logged yet. <a href="{{ url_for('onboard') }}">Run an assessment</a>.</div>
+{% endfor %}
+
+<!-- ===== workbooks ===== -->
+<div class="section-head"><h2>Workbooks</h2></div>
+{% if books %}
+<div class="card"><table>
+  <tr><th>Week</th><th>Subject</th><th>Level</th><th>Topic</th><th></th></tr>
+  {% for b in books %}
+  <tr><td>{{ b.week_of }}</td><td>{{ b.subject }}</td><td>{{ b.difficulty or 'core' }}</td>
+      <td><a href="{{ url_for('workbook', book_id=b.id) }}">{{ b.topic }}</a></td>
+      <td><a class="btn small" href="{{ url_for('download', book_id=b.id) }}">PDF</a></td></tr>
+  {% endfor %}
+</table></div>
+{% else %}<div class="card muted">No workbooks yet.</div>{% endif %}
+{% endblock %}

@@ -1,0 +1,70 @@
+DEMO / DIAGNOSTIC LESSON NOTES
+=============================
+
+Pupil:      Ava Patel
+Year group: 5  (age 10)
+School:     St. Mary's Primary
+Parent:     Priya Patel  -  happy to be contacted by WhatsApp on 07xxx xxxxxx
+Subject:    Maths
+Date:       (today)
+Length:     55 minutes, 1:1
+
+Interests she mentioned:  horse riding, drawing/art, and Roblox. Has a dog called Biscuit.
+Wants to "get better at the tricky maths" before the Year 6 SATs next year.
+
+
+WARM-UP (first 10 min)
+----------------------
+- Times tables: quick and confident on 2, 3, 4, 5, 10. Solid on 6s and 9s.
+  Slower on 7s and 8s - got there but counted up on her fingers for 7x8 and 8x6.
+- Place value to 100,000: read and wrote numbers correctly. Knew the value of each digit.
+- Rounding whole numbers to the nearest 10 / 100 / 1000: all correct.
+
+STRENGTHS
+---------
+- Really neat, careful working. Lines her columns up. Checks her answers without being asked.
+- Strong mental addition and subtraction with 2- and 3-digit numbers.
+- Confident with equivalent fractions when the pictures are in front of her
+  (e.g. saw straight away that 3/6 = 1/2).
+- Good attitude - stuck with the hard questions, didn't give up, asked sensible questions.
+- Explains her thinking clearly out loud.
+
+WEAK POINTS (what actually went wrong)
+--------------------------------------
+1. Decimal place value.
+   Wrote "0.7" as smaller than "0.65" because "65 is bigger than 7".
+   She's comparing the digits after the point as whole numbers and ignoring place value.
+   Also read 3.4 as "three point four" but couldn't say what the 4 was worth (should be 4 tenths).
+
+2. Adding fractions with different denominators.
+   Did 1/3 + 1/4 = 2/7 (added tops and bottoms).
+   Doesn't yet see that the parts have to be the same size before you can add them.
+   She CAN find a common denominator if you remind her, but doesn't do it on her own.
+
+3. Fraction of an amount.
+   3/4 of 20 - she found 1/4 (= 5) then stopped, gave the answer as 5.
+   Forgets the second step (multiply by the numerator).
+
+4. Long multiplication (3-digit x 2-digit).
+   Method is there but she forgot to add the placeholder zero on the second row,
+   so 243 x 26 came out wrong. Got it right on the second try when prompted.
+
+5. Times tables 7 and 8 - not automatic yet, slows everything else down.
+
+SCORE
+-----
+Short diagnostic check at the end: 11 out of 20.
+Strong on: place value of whole numbers, rounding, equivalent fractions, mental +/-.
+Lost marks on: everything with decimals, adding unlike fractions, fractions of amounts.
+
+WHAT TO DO NEXT / PRIORITIES
+---------------------------
+1. Decimal place value and comparing decimals (tenths, hundredths) - biggest gap.
+2. Adding and subtracting fractions with different denominators.
+3. Finding a fraction of an amount (both steps).
+4. Keep drilling 7 and 8 times tables alongside everything else.
+
+General: she's about a term behind on fractions and decimals but the number sense is
+strong underneath. Responds really well to visual models (bar models, place value counters,
+number lines). Bring pizza / cake / money contexts - and horses/drawing where it fits.
+Level: start at "support" for fractions and decimals, "core" for number and place value.

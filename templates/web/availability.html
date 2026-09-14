@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Availability · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Your weekly availability</h1>
+<p class="sub">These are the times families can book classes into. Add one row per window
+  (for example Monday 16:00–19:00). Leave a row blank to ignore it.</p>
+
+<form method="post" action="{{ url_for('availability') }}">
+  <div class="card">
+    <table id="avail">
+      <tr><th>Day</th><th>From</th><th>To</th><th>Slot length</th></tr>
+      {% set rows = rules + [None, None, None, None, None, None] %}
+      {% for r in rows[:12] %}
+      <tr>
+        <td>
+          <select name="weekday">
+            {% for d in WEEKDAYS %}
+            <option value="{{ loop.index0 }}" {{ 'selected' if r and r.weekday == loop.index0 }}>{{ d }}</option>
+            {% endfor %}
+          </select>
+        </td>
+        <td><input type="time" name="start_time" value="{{ r.start_time if r else '' }}"></td>
+        <td><input type="time" name="end_time" value="{{ r.end_time if r else '' }}"></td>
+        <td>
+          <select name="slot_min">
+            {% for m in [30, 45, 60, 90, 120] %}
+            <option value="{{ m }}" {{ 'selected' if (r.slot_min if r else 60) == m }}>{{ m }} min</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="btn-row"><button class="btn" type="submit">Save availability</button>
+    <a class="btn secondary" href="{{ url_for('calendar') }}">View calendar</a></div>
+</form>
+{% endblock %}

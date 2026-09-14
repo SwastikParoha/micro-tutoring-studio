@@ -1,0 +1,55 @@
+DEMO LESSON  -  ASSESSMENT REPORT
+================================
+(Fill this in after the demo lesson. Then add the pupil in the app and paste it in,
+ or use it with:  python main.py onboard --notes-file assessment_form_blank.txt)
+
+
+PUPIL
+-----
+Name:
+Year group:                 Age:
+School:
+Parent / guardian:                            Best way to contact:
+Subject of the lesson:      (maths / english / science / geography / history)
+Date of lesson:
+
+
+THINGS THEY LIKE
+----------------
+Hobbies, sports, games, TV, pets, anything they talked about:
+
+
+
+HOW THEY DID
+------------
+For each topic you tested, write the score (got right / total) and a short note
+on any mistakes - especially WHAT they did wrong, not just "got it wrong".
+
+  Topic                           Score        What went wrong / what they said
+  ----------------------------    ---------    ------------------------------------------
+  Fractions                       ... / ...
+  Decimals                        ... / ...
+  Times tables                    ... / ...
+  Reading / writing               ... / ...
+  Science - ...                   ... / ...
+                                  ... / ...
+                                  ... / ...
+
+
+OVERALL
+-------
+Total score:            ...  out of  ...
+Went really well:
+Needs the most help:
+How they work (neat? gives up easily? checks answers? confident?):
+Best way to teach them (visual? likes talking it through? needs lots of examples?):
+
+
+ANYTHING ELSE
+-------------
+
+
+
+STARTING LEVEL (your gut feel)
+-----------------------------
+support  (bit behind, keep it gentle)   /   core  (about right for their year)   /   stretch  (ahead, push them)

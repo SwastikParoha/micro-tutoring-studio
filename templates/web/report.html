@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Report · {{ pupil.full_name }}{% endblock %}
+{% block body %}
+<div class="section-head">
+  <h1>Progress report — {{ pupil.full_name }}
+    <span class="pill-status {{ rep.status }}">{{ rep.status }}</span></h1>
+  <a href="{{ url_for('pupil', pupil_id=pupil.id) }}">← {{ pupil.full_name }}</a>
+</div>
+<p class="sub">{{ rep.period }} · drafted {{ rep.created_on }}. Edit on the left, preview on the right.
+Save, then download the PDF to send to the parents.</p>
+
+<form method="post" class="split report-edit">
+  <div>
+    <label for="period">Period</label>
+    <input type="text" id="period" name="period" value="{{ rep.period }}">
+    <label for="content_md">Report text (Markdown — <code>## Heading</code>, <code>- bullet</code>)</label>
+    <textarea id="content_md" name="content_md">{{ rep.content_md }}</textarea>
+    <div class="row" style="margin-top:10px">
+      <div style="flex:0">
+        <label for="status">Status</label>
+        <select id="status" name="status">
+          <option value="draft" {{ 'selected' if rep.status == 'draft' }}>Draft</option>
+          <option value="sent" {{ 'selected' if rep.status == 'sent' }}>Sent</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn" type="submit">Save</button>
+      <a class="btn secondary" href="{{ url_for('report_pdf', report_id=rep.id) }}">Download PDF</a>
+    </div>
+  </div>
+  <div>
+    <label>Preview</label>
+    <div class="report-preview" id="preview"></div>
+  </div>
+</form>
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+  const ta = document.getElementById('content_md');
+  const pv = document.getElementById('preview');
+  function render() {
+    try { pv.innerHTML = window.marked ? marked.parse(ta.value) : ta.value.replace(/\n/g, '<br>'); }
+    catch (e) { pv.textContent = ta.value; }
+  }
+  ta.addEventListener('input', render);
+  render();
+</script>
+{% endblock %}
+{% endblock %}

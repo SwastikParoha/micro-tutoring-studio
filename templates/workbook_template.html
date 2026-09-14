@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>{{ student_name }} — {{ topic_title }}</title>
+<style>
+  @page {
+    size: A4;
+    margin: 12mm 14mm 11mm 14mm;
+    @bottom-right { content: counter(page) " / " counter(pages); font-size: 8pt; color: #bcbcbc; }
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Trebuchet MS', 'Verdana', sans-serif;
+    font-size: 11pt; line-height: 1.4; color: #242424; margin: 0;
+  }
+  h1, h2, h3 { font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif; color: #1b6ca8; }
+  h1 { font-size: 16pt; margin: 0; }
+  h2 {
+    font-size: 13pt; margin: 10pt 0 3pt; color: #1b6ca8;
+    border-bottom: 2.5px dotted #ffcf33; padding-bottom: 2pt;
+  }
+  .notes h2:first-of-type { margin-top: 7pt; }
+  h3 { font-size: 11.5pt; margin: 7pt 0 2pt; color: #e0682f; }
+  p  { margin: 4pt 0; }
+  ul, ol { margin: 4pt 0 4pt 18pt; }
+  li { margin: 2.5pt 0; }
+  strong, b { color: #16405c; }
+
+  .masthead {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #eef7fc; border: 1.5px solid #bfe3f5; border-radius: 8pt;
+    padding: 6pt 12pt; margin-bottom: 4pt; font-size: 10pt; color: #4a4a4a;
+  }
+  .masthead b { color: #1b6ca8; }
+  .masthead .stars { color: #ffcf33; font-size: 12pt; letter-spacing: 2pt; }
+  .thisweek {
+    background: #fff8e1; border: 1.5px solid #ffe08a; border-radius: 7pt;
+    padding: 5pt 11pt; margin-bottom: 3pt; font-size: 10.5pt;
+  }
+  .part-label {
+    font-family: 'Comic Sans MS', sans-serif; color: #1b6ca8; font-size: 11pt;
+    margin: 8pt 0 2pt; letter-spacing: .5pt;
+  }
+
+  /* ---- practice ---- */
+  .q {
+    page-break-inside: avoid;
+    padding-top: 3pt; margin-top: 4pt; border-top: 1px solid #ececec;
+  }
+  .q:first-of-type { border-top: 0; margin-top: 2pt; }
+  .q .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 16pt; height: 16pt; border-radius: 50%;
+    background: #1b6ca8; color: #fff; font-family: 'Comic Sans MS', sans-serif;
+    font-size: 9pt; margin-right: 6pt; vertical-align: middle;
+  }
+  .q .prompt { font-size: 11.5pt; }
+  .q .hint { font-size: 9pt; color: #888; font-style: italic; margin: 1pt 0 0 22pt; }
+  .work {
+    margin: 4pt 0 2pt 0;
+    border: 1px dashed #cfcfcf; border-radius: 5pt;
+    background: repeating-linear-gradient(
+      #fff, #fff 8mm, #ededed 8mm, #ededed calc(8mm + 0.6px));
+  }
+  /* space presets - chosen by the tutor when generating */
+  {% if space == 'lots' %}
+  .work { height: 115mm; } .work.small { height: 70mm; } .work.large { height: 115mm; }
+  {% elif space == 'few' %}
+  .work { height: 21mm; } .work.small { height: 13mm; } .work.large { height: 32mm; }
+  {% else %}  /* 'some' (default) */
+  .work { height: 50mm; } .work.small { height: 28mm; } .work.large { height: 68mm; }
+  {% endif %}
+
+  /* ---- TUTOR ANSWER SHEET - always its own page ---- */
+  .answer-sheet {
+    page-break-before: always;
+    background: #f4f4f4; border: 2px solid #c9c9c9; border-radius: 10pt;
+    padding: 12pt 16pt; margin-top: 4pt;
+  }
+  .answer-sheet .tag {
+    display: inline-block; background: #555; color: #fff; font-size: 9pt;
+    padding: 2pt 9pt; border-radius: 10pt; letter-spacing: .5pt;
+  }
+  .answer-sheet h2 { border-color: #c9c9c9; margin-top: 6pt; }
+  .answer-sheet ol { font-size: 11pt; margin-left: 20pt; }
+  .answer-sheet li { margin: 5pt 0; }
+  .answer-sheet .a { color: #1f6f2b; font-weight: bold; }
+  .answer-sheet .note { font-size: 9.5pt; color: #666; display: block; margin-top: 1pt; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <span><b>{{ student_name }}</b> &nbsp;·&nbsp; {{ topic_title }} &nbsp;·&nbsp;
+    {{ subject }} &nbsp;·&nbsp; Year {{ year_group or '?' }}
+    {% if difficulty and difficulty != 'core' %}&nbsp;·&nbsp; {{ difficulty }} level{% endif %}
+    &nbsp;·&nbsp; {{ week_of }}</span>
+  <span class="stars">★ ★ ★</span>
+</div>
+
+{% if week_focus %}
+<div class="thisweek"><b>This week:</b> {{ week_focus }}</div>
+{% endif %}
+
+<!-- ========== PART 1 · REVISION NOTES ========== -->
+<div class="part-label">PART 1 — REVISION NOTES  ·  read these first, and again before your test</div>
+<section class="notes">
+  {{ notes_html | safe }}
+</section>
+
+<!-- ========== PART 2 · PRACTICE ========== -->
+<div class="part-label">PART 2 — PRACTICE  ·  do these after you have read the notes</div>
+<section>
+  <p style="font-size:10pt;color:#666;margin:2pt 0 3pt;">
+    Answer every question. Use the space to show how you worked it out — pictures and
+    jottings count. When you have finished, ask your tutor for the answer sheet to check.</p>
+
+  {% for q in questions %}
+  <div class="q">
+    <span class="num">{{ q.n }}</span><span class="prompt">{{ q.prompt }}</span>
+    {% if q.hint %}<div class="hint">💡 {{ q.hint }}</div>{% endif %}
+    <div class="work {{ q.space if q.space in ['small','large'] else '' }}"></div>
+  </div>
+  {% endfor %}
+</section>
+
+<!-- ========== TUTOR ANSWER SHEET (own page, print separately) ========== -->
+<section class="answer-sheet">
+  <span class="tag">TUTOR ANSWER SHEET — do not give to the pupil</span>
+  <h2>✅ {{ topic_title }} — Answers</h2>
+  <ol>
+    {% for q in questions %}
+    <li>
+      <span class="a">{{ q.answer or '—' }}</span>
+      {% if q.marking_note %}<span class="note">Look for: {{ q.marking_note }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</section>
+
+</body>
+</html>

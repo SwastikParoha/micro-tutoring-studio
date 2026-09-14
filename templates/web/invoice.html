@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}{{ inv.number }} · {{ status.business }}{% endblock %}
+{% block body %}
+<div class="section-head">
+  <h1>{{ inv.number }} <span class="pill-status {{ inv.status }}">{{ inv.status }}</span></h1>
+  <a href="{{ url_for('pupil', pupil_id=pupil.id) }}">← {{ pupil.full_name }}</a>
+</div>
+
+<div class="card">
+  <p><b>For:</b> {{ pupil.full_name }} · {{ inv.period }}<br>
+     <b>Bill to:</b> {{ pupil.guardian_name or 'Parent / Guardian' }}
+     {% if pupil.guardian_email %}({{ pupil.guardian_email }}){% endif %}<br>
+     <b>Issued:</b> {{ inv.issued_on }}{% if inv.due_on %} · <b>Due:</b> {{ inv.due_on }}{% endif %}</p>
+
+  <table>
+    <tr><th>Description</th><th>Qty</th><th>Unit</th><th>Amount</th></tr>
+    {% for li in inv.line_items_json %}
+    <tr>
+      <td>{{ li.description }}</td>
+      <td>{{ li.qty }}</td>
+      <td>{% if li.unit_price %}£{{ '%.2f'|format(li.unit_price) }}{% endif %}</td>
+      <td>{% if li.amount %}£{{ '%.2f'|format(li.amount) }}{% endif %}</td>
+    </tr>
+    {% endfor %}
+    <tr><td colspan="3" style="text-align:right"><b>Total</b></td>
+        <td><b>£{{ '%.2f'|format(inv.total) }}</b></td></tr>
+  </table>
+  {% if inv.notes %}<p class="muted">{{ inv.notes }}</p>{% endif %}
+</div>
+
+<div class="btn-row">
+  <a class="btn" href="{{ url_for('invoice_pdf', invoice_id=inv.id) }}">Download PDF</a>
+  <form method="post" action="{{ url_for('invoice_status', invoice_id=inv.id) }}" style="display:inline">
+    {% if inv.status == 'draft' %}<button class="btn secondary" name="status" value="sent">Mark as sent</button>{% endif %}
+    {% if inv.status != 'paid' %}<button class="btn secondary" name="status" value="paid">Mark as paid</button>{% endif %}
+    {% if inv.status != 'draft' %}<button class="btn secondary" name="status" value="draft">Back to draft</button>{% endif %}
+  </form>
+</div>
+{% endblock %}

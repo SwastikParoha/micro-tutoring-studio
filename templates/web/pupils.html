@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Pupils · {{ status.business }}{% endblock %}
+{% block body %}
+<div class="section-head">
+  <h1>Pupils</h1>
+  <a class="btn" href="{{ url_for('pupil_new') }}">+ Register pupil</a>
+</div>
+
+<form method="get" class="card" style="padding:12px 16px">
+  <div class="row">
+    <div style="flex:3">
+      <input type="text" name="q" value="{{ q }}" placeholder="Search by pupil name, parent, or school…" autofocus>
+    </div>
+    <div style="flex:0"><button class="btn" type="submit">Search</button></div>
+    {% if q %}<div style="flex:0"><a class="btn secondary" href="{{ url_for('pupils_list') }}">Clear</a></div>{% endif %}
+  </div>
+</form>
+
+{% if pupils %}
+<div class="card">
+  <table>
+    <tr><th>Name</th><th>Year</th><th>Status</th><th>Parent</th><th>Plan</th><th>Monthly</th><th>Books</th></tr>
+    {% for p in pupils %}
+    <tr>
+      <td><a href="{{ url_for('pupil', pupil_id=p.id) }}"><b>{{ p.full_name }}</b></a></td>
+      <td>{{ p.year_group or '?' }}</td>
+      <td><span class="pill-status {{ p.status or 'enquiry' }}">{{ p.status or 'enquiry' }}</span></td>
+      <td>{{ p.guardian_name or '—' }}{% if p.guardian_contact %}<br><span class="muted" style="font-size:12px">{{ p.guardian_contact }}</span>{% endif %}</td>
+      <td>{% if p.enrolment %}{{ p.enrolment.classes_per_month }}/mo · £{{ p.enrolment.hourly_rate|round|int }}/hr{% else %}<span class="muted">—</span>{% endif %}</td>
+      <td>{% if p.enrolment %}£{{ monthly_value(p.enrolment)|round|int }}{% else %}—{% endif %}</td>
+      <td>{{ p.books }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+<p class="muted">{{ pupils|length }} pupil(s){% if q %} matching “{{ q }}”{% endif %}.</p>
+{% else %}
+<div class="card empty">
+  {% if q %}No pupils matching “{{ q }}”.{% else %}No pupils yet.{% endif %}<br><br>
+  <a class="btn" href="{{ url_for('pupil_new') }}">Register your first pupil</a>
+</div>
+{% endif %}
+{% endblock %}

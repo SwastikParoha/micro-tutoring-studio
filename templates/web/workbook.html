@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ book.topic }} · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>{{ book.topic }}</h1>
+<p class="sub">
+  {{ book.subject }} · Key Stage {{ book.key_stage or '?' }} · {{ book.difficulty or 'core' }} level
+  {% if pupil %}· for <a href="{{ url_for('pupil', pupil_id=pupil.id) }}">{{ pupil.full_name }}</a>{% endif %}
+  · {{ book.week_of }}
+</p>
+
+<div class="btn-row">
+  <a class="btn" href="{{ url_for('download', book_id=book.id) }}">Download PDF (print for the pupil)</a>
+  {% if pupil %}<a class="btn secondary" href="{{ url_for('pupil', pupil_id=pupil.id) }}">Back to {{ pupil.full_name }}</a>{% endif %}
+</div>
+
+{% if curr %}
+<div class="card" style="background:#f4fbff;border-color:#bfe3f5">
+  <h3 style="margin-top:0">Sources used for this workbook</h3>
+  <ul class="list-plain">
+    <li>
+      <b>Oak National Academy</b> — unit matched: <i>{{ curr.unit_title }}</i>
+      <span class="pill {{ 'high' if curr.source == 'oak-local' else 'medium' }}">{{ curr.source }}</span>
+      {% if curr.teaching_notes %}<span class="muted"> · {{ curr.teaching_notes|length }} real Oak lesson transcript(s) used</span>{% endif %}
+      {% if curr.oak_questions %}<span class="muted"> · {{ curr.oak_questions|length }} real Oak quiz question(s) referenced</span>{% endif %}
+    </li>
+    {% if curr.national_curriculum_extract %}
+    <li>
+      <b>Real UK National Curriculum wording</b> — the actual gov.uk statutory document was
+      quoted to write these notes, not just a summary of it.
+      {% if nc_doc and nc_doc.downloaded %}
+      <a href="{{ url_for('study_material_file', material_id=nc_doc.id) }}" target="_blank">Open the official document →</a>
+      {% endif %}
+      <details style="margin-top:6px">
+        <summary class="muted" style="cursor:pointer">Show the exact wording used</summary>
+        <pre style="white-space:pre-wrap;font-size:12.5px;background:#fff;border:1px solid var(--line);
+                    border-radius:8px;padding:10px;margin-top:6px">{{ curr.national_curriculum_extract }}</pre>
+      </details>
+    </li>
+    {% elif nc_doc %}
+    <li class="muted">The National Curriculum document for {{ book.subject }} hasn't been downloaded yet —
+      <a href="{{ url_for('study_material') }}">go to Study material</a> to fetch it, then regenerate for
+      an extra layer of grounding.</li>
+    {% endif %}
+  </ul>
+</div>
+{% endif %}
+
+{% set strat = book.strategy_json or {} %}
+{% if strat.misconceptions_targeted %}
+<div class="card" style="background:#fff8e1;border-color:#ffe08a">
+  <h3 style="margin-top:0">For you — what this week targets</h3>
+  <ul class="list-plain">
+    {% for m in strat.misconceptions_targeted %}
+      <li>{{ m.misconception }}{% if m.representation %} <span class="muted">— use {{ m.representation }}</span>{% endif %}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+
+<p class="muted">The pupil's workbook (revision notes + practice with working space + answers):</p>
+{% if book.pdf_path and book.pdf_path.endswith('.pdf') %}
+<embed class="pdf" src="{{ url_for('view', book_id=book.id) }}#toolbar=1" type="application/pdf">
+{% else %}
+<div class="card muted">Preview not available — use the Download button above.</div>
+{% endif %}
+{% endblock %}

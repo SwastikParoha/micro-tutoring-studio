@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Account · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Your account</h1>
+<p class="sub">Signed in as <b>{{ user.username }}</b>
+  ({{ 'tutor / admin' if user.role == 'admin' else 'family' }}).</p>
+
+{% if user.must_change_pw %}
+<div class="flash error">Please set your own password below before you carry on.</div>
+{% endif %}
+
+<div class="card" style="max-width:460px">
+  <h2 style="margin-top:0">Change password</h2>
+  <form method="post" action="{{ url_for('account') }}">
+    <label for="password">New password <span class="muted">(at least 6 characters)</span></label>
+    <input type="password" id="password" name="password" minlength="6" required>
+    <div class="btn-row"><button class="btn" type="submit">Save password</button></div>
+  </form>
+</div>
+{% endblock %}

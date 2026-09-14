@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · {{ status.business }}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="signin-wrap">
+  <div class="card signin-card">
+    <h1>🎓 {{ status.business }}</h1>
+    <p class="muted">Sign in to continue.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('login') }}">
+      <input type="hidden" name="next" value="{{ next }}">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" autocapitalize="none" autofocus required>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" required>
+      <div class="btn-row"><button class="btn" type="submit" style="width:100%">Sign in</button></div>
+    </form>
+    <p class="hint">Tutors: use your admin login. Families: use the username and password we gave you
+      when your child joined the programme.</p>
+  </div>
+</div>
+</body>
+</html>

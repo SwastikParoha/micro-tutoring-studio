@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Report · {{ pupil.full_name }}{% endblock %}
+{% block body %}
+<div class="section-head">
+  <h1>Progress report — {{ pupil.full_name }}</h1>
+  <a href="{{ url_for('parent_home') }}">← Back</a>
+</div>
+<p class="sub">{{ rep.period }}
+  · <a href="{{ url_for('report_pdf', report_id=rep.id) }}">Download as PDF</a></p>
+
+{% if scores|length > 1 %}
+<div class="card">
+  <h3 style="margin-top:0">Assessment scores</h3>
+  <table>
+    <tr>{% for d, s in scores %}<th>{{ d }}</th>{% endfor %}</tr>
+    <tr>{% for d, s in scores %}<td><b>{{ s|round|int }}%</b></td>{% endfor %}</tr>
+  </table>
+</div>
+{% endif %}
+
+<div class="report-preview" id="preview"></div>
+<textarea id="src" hidden>{{ rep.content_md }}</textarea>
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script>
+  const src = document.getElementById('src').value;
+  const pv = document.getElementById('preview');
+  try { pv.innerHTML = window.marked ? marked.parse(src) : src.replace(/\n/g, '<br>'); }
+  catch (e) { pv.textContent = src; }
+</script>
+{% endblock %}
+{% endblock %}

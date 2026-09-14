@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}New report · {{ pupil.full_name }}{% endblock %}
+{% block body %}
+<h1>New progress report — {{ pupil.full_name }}</h1>
+<p class="sub">The AI drafts a report for the parents from everything on file — the diagnostic,
+weekly scores, weak points and workbooks covered. You then edit it before sending.</p>
+
+<form method="post" class="card" data-working="Writing the report from {{ pupil.full_name }}'s history…">
+  <label for="period">Period this report covers</label>
+  <input type="text" id="period" name="period" value="{{ period }}"
+         placeholder="e.g. Autumn term 2026 / October 2026">
+  <div class="btn-row"><button class="btn" type="submit">Draft the report</button></div>
+</form>
+{% endblock %}

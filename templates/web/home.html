@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Dashboard</h1>
+
+<div class="stat-row">
+  <div class="stat"><div class="n">{{ stats.active }}</div><div class="l">Active pupils</div></div>
+  <div class="stat"><div class="n">{{ stats.enquiries }}</div><div class="l">Enquiries / trials</div></div>
+  <div class="stat"><div class="n">£{{ stats.mrr|round|int }}</div><div class="l">Monthly recurring</div></div>
+  <div class="stat"><div class="n">£{{ stats.outstanding|round|int }}</div><div class="l">Unpaid invoices</div></div>
+  <div class="stat"><div class="n">{{ stats.workbooks }}</div><div class="l">Workbooks made</div></div>
+</div>
+
+<div class="btn-row">
+  <a class="btn" href="{{ url_for('pupil_new') }}">+ Register a pupil</a>
+  <a class="btn secondary" href="{{ url_for('onboard') }}">Assess a pupil (demo notes / photo)</a>
+  <a class="btn secondary" href="{{ url_for('generate') }}">New workbook</a>
+</div>
+
+{% if enquiries %}
+<div class="section-head"><h2>Enquiries &amp; trials</h2><a href="{{ url_for('pupils_list') }}">All pupils →</a></div>
+<div class="grid">
+  {% for p in enquiries %}
+  <a class="card pupil-card" href="{{ url_for('pupil', pupil_id=p.id) }}">
+    <h3>{{ p.full_name }} <span class="pill-status {{ p.status }}">{{ p.status }}</span></h3>
+    <div class="meta">Year {{ p.year_group or '?' }}{% if p.guardian_name %} · {{ p.guardian_name }}{% endif %}</div>
+    {% if p.goals %}<div class="muted" style="font-size:13px">{{ p.goals }}</div>{% endif %}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="section-head"><h2>Active pupils</h2><a href="{{ url_for('pupils_list') }}">All pupils →</a></div>
+{% if active %}
+<div class="card">
+  <table>
+    <tr><th>Pupil</th><th>Year</th><th>Plan</th><th>Monthly</th><th>Workbooks</th><th></th></tr>
+    {% for p in active %}
+    <tr>
+      <td><a href="{{ url_for('pupil', pupil_id=p.id) }}">{{ p.full_name }}</a></td>
+      <td>{{ p.year_group or '?' }}</td>
+      <td>{% if p.enrolment %}{{ p.enrolment.classes_per_month }} classes/mo{% else %}<span class="muted">no plan</span>{% endif %}</td>
+      <td>{% if p.enrolment %}£{{ monthly_value(p.enrolment)|round|int }}{% else %}—{% endif %}</td>
+      <td>{{ p.books|default(0) }}</td>
+      <td><a class="btn small" href="{{ url_for('generate', pupil=p.id) }}">Workbook</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% else %}
+<div class="card muted">No active pupils yet. Register one and add them to the programme.</div>
+{% endif %}
+
+<div class="section-head"><h2>Classes — next 7 days</h2><a href="{{ url_for('calendar') }}">Full calendar →</a></div>
+<div class="card">
+  {% if upcoming %}
+  <table>
+    <tr><th>When</th><th>Pupil</th><th>Subject</th><th>Status</th></tr>
+    {% for c in upcoming %}
+    <tr>
+      <td>{{ c.starts_at[:16] }}</td>
+      <td><a href="{{ url_for('pupil', pupil_id=c.student_id) }}">{{ c.student_name }}</a></td>
+      <td>{{ c.subject or '—' }}</td>
+      <td><span class="pill-status {{ 'active' if c.status in ('booked','arrived') else 'draft' }}">{{ c.status }}</span></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <div class="muted">No classes booked in the next week. Set your <a href="{{ url_for('availability') }}">availability</a> so families can book.</div>
+  {% endif %}
+</div>
+
+<div class="split">
+  <div>
+    <div class="section-head"><h2>Recent workbooks</h2></div>
+    <div class="card">
+      {% for b in recent_books %}
+      <div style="padding:6px 0;border-bottom:1px dashed var(--line)">
+        <a href="{{ url_for('pupil', pupil_id=b.pupil_id) }}">{{ b.pupil }}</a> —
+        {{ b.topic }} <span class="muted">({{ b.subject }}, {{ b.week_of }})</span>
+        <a class="btn small" style="float:right" href="{{ url_for('download', book_id=b.id) }}">PDF</a>
+      </div>
+      {% else %}<div class="muted">None yet.</div>{% endfor %}
+    </div>
+  </div>
+  <div>
+    <div class="section-head"><h2>Unpaid invoices</h2><a href="{{ url_for('invoices_all') }}">All →</a></div>
+    <div class="card">
+      {% for i in unpaid %}
+      <div style="padding:6px 0;border-bottom:1px dashed var(--line)">
+        <a href="{{ url_for('invoice_view', invoice_id=i.id) }}">{{ i.number }}</a> —
+        {{ i.student_name }} <span class="muted">{{ i.period }}</span>
+        <b style="float:right">£{{ '%.2f'|format(i.total) }}</b>
+      </div>
+      {% else %}<div class="muted">Nothing outstanding.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

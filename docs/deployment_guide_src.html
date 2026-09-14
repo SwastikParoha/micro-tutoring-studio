@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Deployment Guide</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 16mm 16mm; }
+  * { box-sizing: border-box; }
+  body { font: 11pt/1.5 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+         color: #23303a; margin: 0; }
+  h1 { font-size: 22pt; color: #1b6ca8; margin: 0 0 4px; }
+  h2 { font-size: 14.5pt; color: #1b6ca8; margin: 22px 0 8px; border-bottom: 2px solid #dbe7ef;
+       padding-bottom: 3px; page-break-after: avoid; }
+  h3 { font-size: 12pt; margin: 16px 0 4px; page-break-after: avoid; }
+  p, li { margin: 5px 0; }
+  ol, ul { padding-left: 20px; margin: 6px 0; }
+  ol li { margin: 6px 0; }
+  code { background: #eef4f8; padding: 1px 5px; border-radius: 4px; font-family: "Cascadia Code", Consolas, monospace;
+         font-size: 9.7pt; }
+  pre { background: #f4f7f9; border: 1px solid #dbe7ef; border-left: 3px solid #1b6ca8; border-radius: 6px;
+        padding: 9px 12px; font-family: "Cascadia Code", Consolas, monospace; font-size: 9.2pt;
+        white-space: pre-wrap; word-break: break-word; margin: 8px 0; }
+  .lede { font-size: 11.5pt; color: #4a5b68; }
+  .box { background: #f4fbff; border: 1px solid #bfe3f5; border-radius: 8px; padding: 10px 14px; margin: 12px 0; }
+  .warn { background: #fff8e6; border-color: #f0d98c; }
+  .ok { background: #eef8f0; border-color: #b7ddb0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10pt; }
+  th, td { border: 1px solid #cfdae2; padding: 6px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef4f8; }
+  .muted { color: #6b7a86; }
+  .tag { display: inline-block; background: #1b6ca8; color: #fff; font-size: 8.5pt; padding: 1px 7px;
+         border-radius: 9px; vertical-align: middle; }
+  .step-note { color: #6b7a86; font-size: 9.6pt; }
+  footer { margin-top: 26px; border-top: 1px solid #dbe7ef; padding-top: 8px; font-size: 9pt; color: #6b7a86; }
+  h2, h3, .box, pre, table { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>Putting {{ business }} online</h1>
+<p class="lede">A step-by-step guide to hosting the tutoring platform for <b>free</b>, on a link that
+<b>stays up permanently</b> &mdash; it never &ldquo;falls asleep&rdquo; and is not deleted after a month.</p>
+
+<div class="box">
+<b>Two ways to do this.</b> Pick one &mdash; you do not need both.
+<ul>
+<li><b>Option A &mdash; PythonAnywhere.</b> Easiest by far. All done through a website, no black
+screen full of commands. About 20&ndash;30 minutes. Best if you are not technical. <span class="muted">One
+small catch: the AI lesson-writing needs a paid add-on or a quick permission request (explained below);
+everything else &mdash; the parent portal, calendar, invoices, CRM &mdash; works fully on the free plan.</span></li>
+<li><b>Option B &mdash; Oracle Cloud (Always Free).</b> A little more setup (about an hour, involves
+typing commands). In return you get a proper small server that is free <i>forever</i>, with the AI
+features fully working and your own web address. Best if you want to set it once and never touch it.</li>
+</ul>
+</div>
+
+<h2>Before you start &mdash; decide these five things</h2>
+<p>You will be asked for these during setup. Write them down now.</p>
+<table>
+<tr><th>Setting</th><th>What it is</th><th>Example</th></tr>
+<tr><td><code>BUSINESS_NAME</code></td><td>Your brand name. Shows on every page and PDF.</td><td>{{ business }}</td></tr>
+<tr><td><code>TUTOR_NAME</code></td><td>The name that signs off reports (can be left blank).</td><td>Priya Sharma</td></tr>
+<tr><td><code>ADMIN_USERNAME</code><br><code>ADMIN_PASSWORD</code></td><td>Your own login for the admin side.
+Choose a <b>strong</b> password &mdash; this controls every family's data.</td><td>priya<br>a long phrase only you know</td></tr>
+<tr><td><code>SECRET_KEY</code></td><td>A random string that keeps logins secure. Just mash the keyboard for 40+ characters.</td><td>hg83nf...(long &amp; random)</td></tr>
+<tr><td><code>GEMINI_API_KEY</code></td><td>Your Google Gemini key, for AI-written workbooks &amp; reports.
+Optional &mdash; without it the app still makes workbooks with its built-in writer.</td><td>from aistudio.google.com</td></tr>
+<tr><td><code>OAK_API_KEY</code></td><td>Your Oak National Academy key, for real lesson transcripts &amp; quiz questions.
+Optional.</td><td>from Oak</td></tr>
+</table>
+<p class="step-note">The app already contains the offline Oak curriculum dataset, so curriculum content
+works even with no keys at all.</p>
+
+
+<h2>Option A &mdash; PythonAnywhere <span class="tag">recommended</span></h2>
+
+<h3>1. Create the account</h3>
+<ol>
+<li>Go to <code>www.pythonanywhere.com</code> and click <b>Pricing &amp; signup</b>, then
+<b>Create a Beginner account</b> (the free one). No card needed.</li>
+<li>Pick a username &mdash; <b>this becomes your web address</b>, e.g. username <code>brightsteps</code>
+gives you <code>brightsteps.pythonanywhere.com</code>. Choose your brand name if it is free.</li>
+<li>Confirm your email.</li>
+</ol>
+
+<h3>2. Upload the code</h3>
+<p>From the PythonAnywhere dashboard, open a <b>Bash console</b> (Consoles &rarr; &ldquo;Bash&rdquo;). Type:</p>
+<pre>git clone https://github.com/YOURNAME/micro-tutoring.git
+cd micro-tutoring</pre>
+<p class="step-note">If your code is not on GitHub: on the <b>Files</b> tab, create a folder
+<code>micro-tutoring</code> and use <b>Upload a file</b> to add a zip of the project, then in the Bash
+console run <code>cd micro-tutoring &amp;&amp; unzip *.zip</code>.</p>
+
+<h3>3. Install the app</h3>
+<pre>python3.11 -m venv .venv
+source .venv/bin/activate
+pip install flask python-dotenv requests markdown jinja2 google-genai
+python main.py setup      # downloads the Oak curriculum dataset (~40 MB)</pre>
+<p class="step-note">Leave out <code>weasyprint</code>, <code>playwright</code> and <code>crewai</code> &mdash;
+they are heavy and the free plan has limited space. PDFs still generate (as clean printable HTML pages that
+any browser turns into a PDF with <b>Print &rarr; Save as PDF</b>).</p>
+
+<h3>4. Create the web app</h3>
+<ol>
+<li>Go to the <b>Web</b> tab &rarr; <b>Add a new web app</b> &rarr; <b>Manual configuration</b> &rarr;
+<b>Python 3.11</b>.</li>
+<li>Under <b>Code</b>, set:
+<ul>
+<li><b>Source code:</b> <code>/home/USERNAME/micro-tutoring</code></li>
+<li><b>Working directory:</b> <code>/home/USERNAME/micro-tutoring</code></li>
+</ul></li>
+<li>Under <b>Virtualenv</b>, enter: <code>/home/USERNAME/micro-tutoring/.venv</code></li>
+<li>Click the <b>WSGI configuration file</b> link. Delete everything in it and paste:</li>
+</ol>
+<pre>import os, sys
+
+path = "/home/USERNAME/micro-tutoring"
+if path not in sys.path:
+    sys.path.insert(0, path)
+
+os.environ["BUSINESS_NAME"]   = "Your Brand Name"
+os.environ["TUTOR_NAME"]      = "Your Name"
+os.environ["ADMIN_USERNAME"]  = "you"
+os.environ["ADMIN_PASSWORD"]  = "your-strong-password"
+os.environ["SECRET_KEY"]      = "paste-a-long-random-string-here"
+os.environ["GEMINI_API_KEY"]  = ""   # optional
+os.environ["OAK_API_KEY"]     = ""   # optional
+
+from wsgi import app as application</pre>
+<p class="step-note">Replace <code>USERNAME</code> with your PythonAnywhere username everywhere, and fill in
+your five settings. Save the file.</p>
+
+<h3>5. Go live</h3>
+<ol>
+<li>Back on the <b>Web</b> tab, click the big green <b>Reload</b> button.</li>
+<li>Visit <code>https://USERNAME.pythonanywhere.com</code> &mdash; you should see the sign-in page.</li>
+<li>Sign in with the admin username and password you set. You are live.</li>
+</ol>
+
+<div class="box ok"><b>Your links are now:</b><br>
+Admin / tutor: <code>https://USERNAME.pythonanywhere.com/admin</code><br>
+Families: <code>https://USERNAME.pythonanywhere.com/parent</code> &mdash; each family signs in and sees
+only their own child.</div>
+
+<div class="box warn">
+<b>Keeping it permanent.</b> The free plan asks you to press a &ldquo;<b>Run until 3 months from
+today</b>&rdquo; button on the Web tab every three months. PythonAnywhere emails you a reminder. One click
+keeps it running &mdash; the app and all your data stay exactly as they were. It is never deleted for
+inactivity the way Railway or Render free apps are.
+</div>
+
+<div class="box warn">
+<b>About the AI features on the free plan.</b> PythonAnywhere's free plan only lets the app talk to an
+approved list of outside websites, and Google's AI is not on it by default. So on the free plan:
+<ul>
+<li>The parent portal, calendar, attendance, invoices, reports editor, CRM and curriculum content
+&mdash; <b>all work fully</b>.</li>
+<li>AI-<i>written</i> workbook notes and AI-<i>drafted</i> reports fall back to the built-in writer
+(still usable, just less tailored).</li>
+</ul>
+To switch the AI on, either (a) open a paid <b>Hacker</b> plan (about US$5/month) which removes the
+restriction, or (b) email PythonAnywhere support and ask them to add
+<code>generativelanguage.googleapis.com</code> to your allowed sites &mdash; they usually approve Google
+APIs for free accounts within a day.
+</div>
+
+
+<h2>Option B &mdash; Oracle Cloud Always Free</h2>
+<p>A real server that is free for life, with nothing blocked. You will type commands over a secure
+connection (SSH). Set aside an hour.</p>
+
+<h3>1. Create the free server</h3>
+<ol>
+<li>Sign up at <code>www.oracle.com/cloud/free</code>. It asks for a card <b>for identity only</b> &mdash;
+the &ldquo;Always Free&rdquo; resources are never charged. Choose a home region close to you.</li>
+<li>In the console: <b>Compute &rarr; Instances &rarr; Create Instance</b>.</li>
+<li>Under <b>Image and shape</b>: choose <b>Canonical Ubuntu 22.04</b>, then shape
+<b>Ampere</b> &rarr; <b>VM.Standard.A1.Flex</b> with 1 OCPU and 6 GB memory (well inside the Always
+Free limit).</li>
+<li>Under <b>Networking</b>, tick <b>Assign a public IPv4 address</b>.</li>
+<li>Download the <b>private key</b> when prompted &mdash; you need it to log in. Click <b>Create</b>.</li>
+<li>When the instance is running, note its <b>Public IP address</b>.</li>
+<li>Open the firewall: <b>Networking &rarr; Virtual Cloud Networks &rarr; your VCN &rarr; Security
+Lists &rarr; Default</b> &rarr; <b>Add Ingress Rules</b>: source <code>0.0.0.0/0</code>, protocol TCP,
+destination port <b>80</b>. Repeat for port <b>443</b>.</li>
+</ol>
+
+<h3>2. Connect and install</h3>
+<p>On your own computer, open a terminal (on Windows: PowerShell) and connect:</p>
+<pre>ssh -i path\to\your-key.key ubuntu@YOUR_PUBLIC_IP</pre>
+<p>Then, on the server:</p>
+<pre>sudo apt update &amp;&amp; sudo apt install -y python3-venv python3-pip git nginx
+sudo iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+sudo iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+sudo netfilter-persistent save
+
+git clone https://github.com/YOURNAME/micro-tutoring.git
+cd micro-tutoring
+python3 -m venv .venv &amp;&amp; source .venv/bin/activate
+pip install -r requirements.txt
+playwright install --with-deps chromium      # for polished PDFs
+python main.py setup</pre>
+
+<h3>3. Add your settings</h3>
+<p>Create the settings file:</p>
+<pre>nano .env</pre>
+<p>Paste this, fill it in, then press <code>Ctrl+O</code>, <code>Enter</code>, <code>Ctrl+X</code>:</p>
+<pre>BUSINESS_NAME=Your Brand Name
+TUTOR_NAME=Your Name
+ADMIN_USERNAME=you
+ADMIN_PASSWORD=your-strong-password
+SECRET_KEY=paste-a-long-random-string
+GEMINI_API_KEY=your-key-or-leave-blank
+OAK_API_KEY=your-key-or-leave-blank</pre>
+
+<h3>4. Run it as a permanent service</h3>
+<pre>sudo nano /etc/systemd/system/tutoring.service</pre>
+<p>Paste:</p>
+<pre>[Unit]
+Description=Micro Tutoring
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/micro-tutoring
+EnvironmentFile=/home/ubuntu/micro-tutoring/.env
+ExecStart=/home/ubuntu/micro-tutoring/.venv/bin/gunicorn wsgi:app -b 127.0.0.1:8000 -w 2 -t 120
+Restart=always
+
+[Install]
+WantedBy=multi-user.target</pre>
+<p>Then:</p>
+<pre>sudo systemctl enable --now tutoring
+sudo systemctl status tutoring        # should say "active (running)"</pre>
+
+<h3>5. Put it on port 80</h3>
+<pre>sudo nano /etc/nginx/sites-available/tutoring</pre>
+<p>Paste (replace the server name with your IP for now, or your domain later):</p>
+<pre>server {
+    listen 80;
+    server_name YOUR_PUBLIC_IP;
+    client_max_body_size 25M;
+    location / { proxy_pass http://127.0.0.1:8000;
+                 proxy_set_header Host $host;
+                 proxy_set_header X-Forwarded-For $remote_addr; }
+}</pre>
+<pre>sudo ln -s /etc/nginx/sites-available/tutoring /etc/nginx/sites-enabled/
+sudo nginx -t &amp;&amp; sudo systemctl reload nginx</pre>
+<p>Visit <code>http://YOUR_PUBLIC_IP/</code> &mdash; the sign-in page. Admin at <code>/admin</code>,
+families at <code>/parent</code>.</p>
+
+<h3>6. That is the server done</h3>
+<p>It now answers on <code>http://YOUR_PUBLIC_IP/</code>. To put it on your own web address with a
+padlock (HTTPS), do the &ldquo;Using your own domain&rdquo; section below.</p>
+
+
+<h2>Using your own domain</h2>
+<p>A cheap domain (&pound;5&ndash;&pound;10/year) is all you need to turn
+<code>http://140.238.x.x/</code> into <code>https://yourbrand.co.uk/admin</code>. Buying the domain
+does <b>not</b> change the app &mdash; it is just two jobs: (1) point the domain at your server, and
+(2) tell the server its name so it can fetch a free HTTPS certificate.</p>
+
+<div class="box warn"><b>This needs Option B (Oracle Cloud) or a paid PythonAnywhere plan.</b>
+The free PythonAnywhere plan cannot use a custom domain &mdash; you would need their
+<b>Hacker</b> plan (about US$5/month), after which you add the domain under the <b>Web</b> tab and
+create the CNAME it shows you. The steps below are for the Oracle Cloud server.</div>
+
+<h3>1. Buy the domain</h3>
+<p>Use any registrar &mdash; <b>Cloudflare</b>, <b>Porkbun</b> and <b>Namecheap</b> are all cheap and
+fine. Avoid the &ldquo;free for year one&rdquo; upsells; a <code>.com</code>, <code>.co.uk</code> or
+<code>.uk</code> at the normal price is best. You do <b>not</b> need their hosting, email or
+&ldquo;website builder&rdquo; add-ons &mdash; just the domain.</p>
+
+<h3>2. Point the domain at your server</h3>
+<p>In the registrar's <b>DNS</b> settings, delete any placeholder records they added and create these
+two, using the <b>Public IP address</b> of your Oracle instance:</p>
+<table>
+<tr><th>Type</th><th>Name / Host</th><th>Value</th><th>TTL</th></tr>
+<tr><td>A</td><td><code>@</code> <span class="muted">(the bare domain)</span></td><td>your server's public IP</td><td>Automatic / 300</td></tr>
+<tr><td>A</td><td><code>www</code></td><td>your server's public IP</td><td>Automatic / 300</td></tr>
+</table>
+<p class="step-note">If you bought the domain at Cloudflare, set the two records to
+<b>&ldquo;DNS only&rdquo;</b> (grey cloud, not orange) so the server can manage its own certificate.
+Changes usually take 5&ndash;30 minutes to take effect (occasionally a few hours). Check progress at
+<code>dnschecker.org</code>.</p>
+
+<h3>3. Give the server a free HTTPS certificate (Caddy)</h3>
+<p>Caddy replaces nginx and fetches + renews a real certificate automatically. On the server:</p>
+<pre>sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy.gpg
+echo "deb [signed-by=/usr/share/keyrings/caddy.gpg] https://dl.cloudsmith.io/public/caddy/stable/deb/debian any-version main" | sudo tee /etc/apt/sources.list.d/caddy.list
+sudo apt update &amp;&amp; sudo apt install -y caddy
+sudo systemctl stop nginx &amp;&amp; sudo systemctl disable nginx      # if you set nginx up earlier</pre>
+<p>Write the config (replace <code>yourbrand.co.uk</code> with your real domain):</p>
+<pre>sudo nano /etc/caddy/Caddyfile</pre>
+<pre>yourbrand.co.uk, www.yourbrand.co.uk {
+    reverse_proxy 127.0.0.1:8000
+    request_body { max_size 25MB }
+}</pre>
+<pre>sudo systemctl restart caddy
+sudo journalctl -u caddy -n 20      # should show "certificate obtained successfully"</pre>
+
+<h3>4. Done</h3>
+<p>Open <code>https://yourbrand.co.uk</code> &mdash; the sign-in page, with a padlock. Your links are:</p>
+<div class="box ok">
+Tutor / admin: <code>https://yourbrand.co.uk/admin</code><br>
+Families: <code>https://yourbrand.co.uk/parent</code><br>
+Family sign-in link to send out: <code>https://yourbrand.co.uk/</code>
+</div>
+<p class="step-note">The certificate renews itself for free every ~90 days &mdash; nothing to do. If the
+padlock does not appear, wait for DNS (step 2) to finish propagating and run
+<code>sudo systemctl restart caddy</code> again. Make sure ports <b>80</b> and <b>443</b> are open in
+both the Oracle Security List <i>and</i> the server firewall (step 2 of Option B).</p>
+
+
+<h2>Giving families their login</h2>
+<ol>
+<li>Register the child (admin &rarr; <b>+ Register pupil</b>).</li>
+<li>Add them to the programme (<b>Add to programme</b> &mdash; set hours, rate, subjects).</li>
+<li>On the pupil's page, under <b>Family login</b>, click <b>Create family login</b>.</li>
+<li>A yellow bar shows the <b>site link, username and password</b> once &mdash; copy it and send it to
+the parent (text, email, WhatsApp). The password is not shown again; use <b>Reset family password</b>
+if they lose it.</li>
+</ol>
+<p>The family signs in at <code>/parent</code> (or just your main link) and sees only their child:
+their plan, payments made and due, live &ldquo;arrived / departed&rdquo; status, the class timetable
+with self-service booking against your availability, and any reports you have marked <b>sent</b>.</p>
+
+<h2>Set your availability</h2>
+<p>Admin &rarr; <b>Availability</b>: add one row per bookable window (e.g. Monday 16:00&ndash;19:00).
+Families can only book classes inside these times, and only up to the number of classes in their monthly
+plan. You confirm attendance from the <b>Calendar</b> tab with the <b>Arrived</b> and <b>Departed</b>
+buttons.</p>
+
+<h2>Backups</h2>
+<p>Everything lives in one file: <code>database/tutoring.db</code>.</p>
+<ul>
+<li><b>PythonAnywhere:</b> Files tab &rarr; navigate to <code>micro-tutoring/database</code> &rarr;
+download <code>tutoring.db</code>. Do this weekly.</li>
+<li><b>Oracle Cloud:</b> on your computer, run
+<code>scp -i your-key.key ubuntu@YOUR_IP:micro-tutoring/database/tutoring.db .</code></li>
+</ul>
+<p>To restore, just put the file back in the same place and reload / restart.</p>
+
+<h2>Updating the app later</h2>
+<pre># PythonAnywhere: in a Bash console
+cd micro-tutoring &amp;&amp; git pull &amp;&amp; source .venv/bin/activate &amp;&amp; pip install -r requirements.txt
+# then press Reload on the Web tab
+
+# Oracle Cloud:
+cd micro-tutoring &amp;&amp; git pull &amp;&amp; source .venv/bin/activate &amp;&amp; pip install -r requirements.txt
+sudo systemctl restart tutoring</pre>
+<p>Your database is never touched by an update &mdash; new columns are added automatically.</p>
+
+<h2>Troubleshooting</h2>
+<table>
+<tr><th>Symptom</th><th>Fix</th></tr>
+<tr><td>&ldquo;Something went wrong&rdquo; on first load</td>
+<td>Check the error log (PythonAnywhere: Web tab &rarr; Log files; Oracle:
+<code>sudo journalctl -u tutoring -n 50</code>). Usually a typo in the WSGI file path or a missing
+<code>pip install</code>.</td></tr>
+<tr><td>Sign-in page loops / &ldquo;wrong password&rdquo;</td>
+<td>The admin account is created from <code>ADMIN_USERNAME</code> / <code>ADMIN_PASSWORD</code> the
+<i>first</i> time the app runs. If you changed them afterwards, sign in with the old ones and change it
+on the <b>Account</b> page, or delete <code>database/tutoring.db</code> to start fresh.</td></tr>
+<tr><td>Photo upload rejected</td><td>Files must be under 25 MB and a normal image type (JPG, PNG, HEIC).</td></tr>
+<tr><td>AI lessons show &ldquo;off&rdquo;</td><td>Expected on PythonAnywhere free (see the note in Option A).
+On Oracle, check <code>GEMINI_API_KEY</code> is in <code>.env</code> and restart.</td></tr>
+<tr><td>PDF looks like a plain web page</td><td>The polished PDF engine is not installed (fine on free
+hosting). Open the page and use the browser's <b>Print &rarr; Save as PDF</b> &mdash; same result.</td></tr>
+</table>
+
+<h2>Which should I choose?</h2>
+<table>
+<tr><th></th><th>PythonAnywhere (free)</th><th>Oracle Cloud Always Free</th></tr>
+<tr><td>Setup effort</td><td>Low &mdash; all point-and-click</td><td>Medium &mdash; ~1 hour, some commands</td></tr>
+<tr><td>Cost</td><td>Free (US$5/mo if you want AI without asking)</td><td>Free forever</td></tr>
+<tr><td>Stays up permanently</td><td>Yes &mdash; one click every 3 months</td><td>Yes &mdash; nothing to do</td></tr>
+<tr><td>Falls asleep?</td><td>No</td><td>No</td></tr>
+<tr><td>AI workbooks &amp; reports</td><td>Needs paid add-on or a support request</td><td>Works out of the box</td></tr>
+<tr><td>Your own domain (yourbrand.com)</td><td>Paid plans only</td><td>Yes, free</td></tr>
+<tr><td>Card required to sign up</td><td>No</td><td>Yes (identity only, never charged)</td></tr>
+<tr><td>Best for</td><td>Getting online today with no fuss</td><td>Set once, forget, full features</td></tr>
+</table>
+
+<div class="box"><b>Our recommendation:</b> start with <b>PythonAnywhere</b> today to get running. If the
+business grows and you want the AI features and your own web address without a monthly fee, move to
+<b>Oracle Cloud</b> later &mdash; copy <code>tutoring.db</code> across and you lose nothing.</div>
+
+<footer>
+{{ business }} &mdash; deployment guide. Generated {{ today }}.
+The platform is a standard Flask + SQLite application; any host that runs Python 3.10+ will serve it.
+</footer>
+
+</body>
+</html>

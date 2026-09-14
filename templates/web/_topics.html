@@ -1,0 +1,17 @@
+{% if not has_data %}
+  <p class="muted">Topic browsing needs the Oak dataset. Run <code>python main.py setup</code>,
+  or just type any topic above.</p>
+{% elif units %}
+  <div class="topic-results">
+    {% for u in units %}
+      <button type="button" data-topic="{{ u.title }}">
+        <span class="t">{{ u.title }}</span>
+        <span class="muted">· {{ u.subject }}</span>
+        {% if u.description %}<br><span class="d">{{ u.description[:140] }}</span>{% endif %}
+      </button>
+    {% endfor %}
+  </div>
+  <p class="hint">{{ units|length }} unit(s) for {{ subject }} · Key Stage {{ key_stage }}. Click one to use it.</p>
+{% else %}
+  <p class="muted">No matching units. Try a different word, subject or key stage.</p>
+{% endif %}

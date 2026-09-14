@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block title %}New workbook · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>New weekly workbook</h1>
+<p class="sub">Pick a pupil and a topic. The pipeline pulls the official objectives and
+misconceptions, writes a child-friendly lesson, and builds 5–10 practice questions
+(70% at the year-group standard, 30% aimed at the pupil's weak points). It's grounded in
+the Oak National Academy dataset and the real UK National Curriculum wording for the
+pupil's year — see <a href="{{ url_for('study_material') }}">Study material</a> for the source
+documents, and the finished workbook page shows exactly what was used.</p>
+
+<form method="post" class="card" data-working="Building the workbook — fetching curriculum, writing the lesson and questions…">
+  <div class="row">
+    <div>
+      <label for="pupil">Pupil</label>
+      <select id="pupil" name="pupil">
+        <option value="">— none (generic year-group workbook) —</option>
+        {% for p in pupils %}
+        <option value="{{ p.id }}" {{ 'selected' if pre_pupil == p.id
+           or (form and form.pupil|int == p.id) }}>
+          {{ p.full_name }} (Year {{ p.year_group or '?' }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="subject">Subject</label>
+      <select id="subject" name="subject">
+        {% set sel = (form.subject if form else pre_subject) or 'maths' %}
+        {% for s in subjects %}
+        <option value="{{ s }}" {{ 'selected' if sel == s }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <div class="row">
+    <div>
+      <label for="keystage">Key Stage</label>
+      <select id="keystage" name="keystage">
+        <option value="1">Key Stage 1 (Years 1–2)</option>
+        <option value="2" selected>Key Stage 2 (Years 3–6)</option>
+      </select>
+    </div>
+    <div>
+      <label for="difficulty">Difficulty</label>
+      <select id="difficulty" name="difficulty">
+        {% set lvl = (form.difficulty if form else pre_level) or 'core' %}
+        <option value="support" {{ 'selected' if lvl == 'support' }}>Support — easier</option>
+        <option value="core"    {{ 'selected' if lvl == 'core' }}>Core — on track</option>
+        <option value="stretch" {{ 'selected' if lvl == 'stretch' }}>Stretch — a challenge</option>
+      </select>
+      <div class="hint">Pre-set from the pupil's recent results — change it if you like.</div>
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label for="questions">Practice questions</label>
+      <input type="number" id="questions" name="questions" min="4" max="10" value="6">
+    </div>
+    <div>
+      <label for="space">Working space per question</label>
+      <select id="space" name="space">
+        <option value="few" selected>A few lines</option>
+        <option value="some">About half a page</option>
+        <option value="lots">Lots (for showing full working)</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="topic">Topic</label>
+  <input type="text" id="topic" name="topic" placeholder='e.g. "Fractions", "Rivers", "The Vikings"'
+         value="{{ form.topic if form }}" autocomplete="off">
+  <div class="hint">
+    <a href="#" id="browse-toggle">Browse topics for this subject &amp; key stage →</a>
+  </div>
+  <div id="topic-box"></div>
+
+  <div class="btn-row"><button class="btn" type="submit">Build workbook</button></div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const box = document.getElementById('topic-box');
+  const toggle = document.getElementById('browse-toggle');
+  const topicInput = document.getElementById('topic');
+  let open = false;
+
+  async function loadTopics() {
+    const subject = document.getElementById('subject').value;
+    const keystage = document.getElementById('keystage').value;
+    const q = topicInput.value.trim();
+    box.innerHTML = '<p class="muted">Loading…</p>';
+    const res = await fetch(`{{ url_for('topics') }}?subject=${encodeURIComponent(subject)}&keystage=${keystage}&q=${encodeURIComponent(q)}`);
+    box.innerHTML = await res.text();
+    box.querySelectorAll('button[data-topic]').forEach(b => {
+      b.addEventListener('click', () => { topicInput.value = b.dataset.topic; box.innerHTML = ''; open = false; });
+    });
+  }
+
+  toggle.addEventListener('click', (e) => {
+    e.preventDefault();
+    open = !open;
+    if (open) loadTopics(); else box.innerHTML = '';
+  });
+  ['subject', 'keystage'].forEach(id =>
+    document.getElementById(id).addEventListener('change', () => { if (open) loadTopics(); }));
+  let t;
+  topicInput.addEventListener('input', () => { if (open) { clearTimeout(t); t = setTimeout(loadTopics, 300); } });
+</script>
+{% endblock %}

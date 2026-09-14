@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Add {{ pupil.full_name }} to programme · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Add {{ pupil.full_name }} to the programme</h1>
+<p class="sub">Set the plan once the parent has confirmed. You can create the first quote at the same time.</p>
+
+<form method="post" class="card" id="enrolForm">
+  <div class="row">
+    <div><label for="hourly_rate">Rate (£ per hour)</label>
+      <input type="number" step="0.50" id="hourly_rate" name="hourly_rate"
+             value="{{ enrol.hourly_rate if enrol else 15 }}"></div>
+    <div><label for="classes_per_month">Classes per month</label>
+      <input type="number" id="classes_per_month" name="classes_per_month"
+             value="{{ enrol.classes_per_month if enrol else 4 }}"></div>
+  </div>
+  <div class="row">
+    <div><label for="class_length_min">Class length (minutes)</label>
+      <input type="number" step="15" id="class_length_min" name="class_length_min"
+             value="{{ enrol.class_length_min if enrol else 60 }}"></div>
+    <div><label for="start_date">Start date</label>
+      <input type="text" id="start_date" name="start_date" placeholder="{{ '' }}"
+             value="{{ enrol.start_date if enrol else '' }}"></div>
+  </div>
+
+  <label>Subjects covered <span class="muted">(how the monthly classes are split)</span></label>
+  <div class="subject-rows" id="subjectRows">
+    {% set subs = (enrol.subjects_json if enrol else []) or [{'subject':'maths','classes':''},{'subject':'','classes':''}] %}
+    {% for s in subs %}
+    <div class="row" style="margin-bottom:6px">
+      <input type="text" name="subject_name" placeholder="subject (e.g. maths)" value="{{ s.subject }}">
+      <input type="number" name="subject_classes" placeholder="classes" value="{{ s.classes }}">
+    </div>
+    {% endfor %}
+  </div>
+  <a href="#" id="addSubject" style="font-size:13px">+ add another subject</a>
+
+  <div class="row" style="margin-top:14px">
+    <div><label for="payment_method">Payment method</label>
+      <select id="payment_method" name="payment_method">
+        {% for m in PAYMENT_METHODS %}<option {{ 'selected' if enrol and enrol.payment_method == m }}>{{ m }}</option>{% endfor %}
+      </select></div>
+    <div><label for="payment_schedule">Billed</label>
+      <select id="payment_schedule" name="payment_schedule">
+        {% for s in PAYMENT_SCHEDULES %}<option {{ 'selected' if enrol and enrol.payment_schedule == s }}>{{ s }}</option>{% endfor %}
+      </select></div>
+  </div>
+
+  <label for="notes">Notes</label>
+  <input type="text" id="notes" name="notes" value="{{ enrol.notes if enrol else '' }}">
+
+  <div class="quote-box" style="margin-top:16px">
+    <div class="muted">Quote preview</div>
+    <div id="quoteLine" class="big">£0.00 / month</div>
+    <div id="quoteBreak" class="muted"></div>
+  </div>
+
+  <div class="btn-row" style="margin-top:14px">
+    <button class="btn" type="submit">Save plan</button>
+    <button class="btn secondary" type="submit" name="make_quote" value="1">Save plan &amp; create quote</button>
+  </div>
+</form>
+
+{% block scripts %}
+<script>
+  const f = document.getElementById('enrolForm');
+  function recalc() {
+    const rate = parseFloat(f.hourly_rate.value) || 0;
+    const cpm = parseInt(f.classes_per_month.value) || 0;
+    const len = parseInt(f.class_length_min.value) || 60;
+    const perClass = rate * (len / 60);
+    const total = perClass * cpm;
+    document.getElementById('quoteLine').textContent = '£' + total.toFixed(2) + ' / month';
+    const parts = [];
+    document.querySelectorAll('#subjectRows .row').forEach(r => {
+      const n = r.querySelector('[name=subject_name]').value.trim();
+      const c = r.querySelector('[name=subject_classes]').value.trim();
+      if (n && c) parts.push(c + ' × ' + n);
+    });
+    document.getElementById('quoteBreak').textContent =
+      cpm + ' classes × ' + len + ' min × £' + rate.toFixed(2) + '/hr'
+      + (parts.length ? '  ·  ' + parts.join(', ') : '');
+  }
+  f.addEventListener('input', recalc);
+  document.getElementById('addSubject').addEventListener('click', e => {
+    e.preventDefault();
+    const d = document.createElement('div');
+    d.className = 'row'; d.style.marginBottom = '6px';
+    d.innerHTML = '<input type="text" name="subject_name" placeholder="subject">'
+                + '<input type="number" name="subject_classes" placeholder="classes">';
+    document.getElementById('subjectRows').appendChild(d);
+  });
+  recalc();
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}{{ pupil.full_name }} · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>{{ pupil.full_name }}</h1>
+<p class="sub">Year {{ pupil.year_group or '?' }}{% if pupil.school %} · {{ pupil.school }}{% endif %}
+  · your family dashboard</p>
+
+<!-- ===== live status ===== -->
+{% set s = status.session %}
+<div class="card status-banner status-{{ status.state }}">
+  {% if status.state == 'in_session' %}
+    <b>In class now</b> — {{ pupil.full_name }} arrived at {{ s.arrived_at[-5:] }}.
+  {% elif status.state == 'finished_today' %}
+    <b>Class finished</b> — arrived {{ s.arrived_at[-5:] if s.arrived_at }}, left
+    {{ s.departed_at[-5:] if s.departed_at }} today.
+  {% elif status.state == 'upcoming' %}
+    <b>Next class</b> — {{ s.starts_at[:16].replace('T',' ') }} ({{ s.duration_min }} min{% if s.subject %}, {{ s.subject }}{% endif %}).
+  {% else %}
+    <b>No class booked.</b> <a href="{{ url_for('parent_book') }}">Book one now →</a>
+  {% endif %}
+</div>
+
+<div class="split">
+  <!-- ===== plan ===== -->
+  <div>
+    <div class="section-head"><h2>Your plan</h2></div>
+    <div class="card">
+      {% if enrol %}
+        <div class="quote-box big" style="border:0;padding:0;background:none">£{{ '%.2f'|format(monthly) }} / month</div>
+        <p class="muted" style="margin:4px 0 0">
+          {{ enrol.classes_per_month }} classes each month · {{ enrol.class_length_min }} min each
+          {% for sub in enrol.subjects_json or [] %}{% if sub.classes %}<br>· {{ sub.classes }} {{ sub.subject }}{% endif %}{% endfor %}
+          <br>· pay by {{ enrol.payment_method }} ({{ enrol.payment_schedule }})
+        </p>
+        <p style="margin:10px 0 0">This month: <b>{{ booked_this_month }}</b> of {{ enrol.classes_per_month }} classes booked.</p>
+      {% else %}
+        <p class="muted" style="margin:0">You are not on a monthly plan yet. We will set this up with you.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ===== payments ===== -->
+  <div>
+    <div class="section-head"><h2>Payments</h2></div>
+    <div class="card">
+      <p style="margin:0">Paid so far: <b>£{{ '%.2f'|format(pay.paid) }}</b></p>
+      <p style="margin:6px 0 0">Due now: <b class="{{ 'due' if pay.due else '' }}">£{{ '%.2f'|format(pay.due) }}</b></p>
+      {% if pay.extras_pending %}
+      <p style="margin:6px 0 0" class="muted">Extra classes not yet invoiced:
+        <b>£{{ '%.2f'|format(pay.extras_pending) }}</b> — added to your next invoice.</p>
+      {% endif %}
+      {% if pay.invoices %}
+      <table style="margin-top:10px">
+        <tr><th>Invoice</th><th>Period</th><th>Status</th><th>Amount</th></tr>
+        {% for i in pay.invoices %}
+        <tr>
+          <td><a href="{{ url_for('invoice_pdf', invoice_id=i.id) }}">{{ i.number }}</a></td>
+          <td>{{ i.period }}</td>
+          <td><span class="pill-status {{ i.status }}">{{ 'awaiting payment' if i.status == 'sent' else i.status }}</span></td>
+          <td>£{{ '%.2f'|format(i.total) }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ===== timetable ===== -->
+<div class="section-head"><h2>Timetable</h2>
+  <a href="{{ url_for('parent_book') }}">Book a class →</a></div>
+<div class="card">
+  {% if upcoming %}
+  <table>
+    <tr><th>When</th><th>Length</th><th>Subject</th><th>Status</th><th></th></tr>
+    {% for c in upcoming %}
+    <tr>
+      <td>{{ c.starts_at[:16].replace('T',' ') }}</td>
+      <td>{{ c.duration_min }} min</td>
+      <td>{{ c.subject or '—' }}
+        {% if c.billable %}<span class="pill high" title="extra class">extra · £{{ '%.2f'|format(c.charge_amount) }}</span>{% endif %}</td>
+      <td><span class="pill-status {{ 'active' if c.status in ('booked','arrived') else 'draft' }}">{{ c.status }}</span></td>
+      <td>
+        {% if c.status == 'booked' %}
+        <form method="post" action="{{ url_for('parent_cancel', session_id=c.id) }}"
+              onsubmit="return confirm('Cancel this class?')">
+          <button class="btn small secondary" type="submit">Cancel</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted" style="margin:0">No classes booked yet. <a href="{{ url_for('parent_book') }}">Book one →</a></p>
+  {% endif %}
+</div>
+
+<!-- ===== attendance history ===== -->
+{% if past %}
+<div class="section-head"><h2>Recent classes</h2></div>
+<div class="card"><table>
+  <tr><th>When</th><th>Subject</th><th>Attendance</th></tr>
+  {% for c in past %}
+  <tr>
+    <td>{{ c.starts_at[:16].replace('T',' ') }}</td>
+    <td>{{ c.subject or '—' }}</td>
+    <td>
+      {% if c.status == 'departed' %}Attended{% if c.arrived_at %} ({{ c.arrived_at[-5:] }}–{{ c.departed_at[-5:] if c.departed_at }}){% endif %}
+      {% elif c.status == 'arrived' %}Arrived
+      {% elif c.status == 'missed' %}Missed
+      {% else %}{{ c.status }}{% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table></div>
+{% endif %}
+
+<!-- ===== reports ===== -->
+<div class="section-head"><h2>Progress reports</h2></div>
+<div class="card">
+  {% if reports %}
+  <table>
+    <tr><th>Period</th><th>Summary</th><th></th></tr>
+    {% for r in reports %}
+    <tr>
+      <td><a href="{{ url_for('parent_report', report_id=r.id) }}">{{ r.period }}</a></td>
+      <td class="muted">{{ r.summary }}</td>
+      <td><a class="btn small" href="{{ url_for('report_pdf', report_id=r.id) }}">PDF</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted" style="margin:0">No reports shared yet. We will post them here each term.</p>
+  {% endif %}
+</div>
+{% endblock %}

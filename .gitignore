@@ -1,0 +1,20 @@
+*.pyc
+__pycache__/
+.env
+*.db
+database/*.db
+data/oak-curriculum.sqlite
+data/*.part
+data/study_materials/
+outputs/*
+!outputs/.gitkeep
+uploads/*
+!uploads/.gitkeep
+.venv/
+data/oak_cache/
+.flask_secret
+.idea/
+.vscode/
+/micro tutor/
+docs/interview_playbook_src.html
+docs/project_explainer_src.html

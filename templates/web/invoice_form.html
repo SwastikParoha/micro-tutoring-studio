@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}New quote · {{ pupil.full_name }}{% endblock %}
+{% block body %}
+<h1>New quote for {{ pupil.full_name }}</h1>
+{% if not enrol %}
+<div class="flash error">This pupil has no plan yet.
+  <a href="{{ url_for('enrol', pupil_id=pupil.id) }}">Add them to the programme</a> first for auto-filled lines.</div>
+{% endif %}
+
+<form method="post" class="card" id="invForm">
+  {% for eid in extra_ids or [] %}<input type="hidden" name="extra_id" value="{{ eid }}">{% endfor %}
+  {% if extra_ids %}<div class="flash ok">{{ extra_ids|length }} extra class{{ 'es' if extra_ids|length != 1 }}
+    booked by the family {{ 'have' if extra_ids|length != 1 else 'has' }} been added below.</div>{% endif %}
+  <div class="row">
+    <div><label for="period">Period</label>
+      <input type="text" id="period" name="period" value="{{ period }}"></div>
+    <div><label for="due_on">Due date</label>
+      <input type="text" id="due_on" name="due_on" placeholder="optional"></div>
+  </div>
+
+  <label>Lines</label>
+  <div id="lines">
+    {% for li in items %}
+    <div class="row line" style="margin-bottom:6px">
+      <input type="text" name="desc" placeholder="description" value="{{ li.description }}" style="flex:3">
+      <input type="number" name="qty" placeholder="qty" value="{{ li.qty }}" style="flex:0;max-width:70px">
+      <input type="number" name="price" step="0.01" placeholder="£ unit" value="{{ li.unit_price }}" style="flex:0;max-width:100px">
+    </div>
+    {% endfor %}
+    {% if not items %}
+    <div class="row line" style="margin-bottom:6px">
+      <input type="text" name="desc" placeholder="description" style="flex:3">
+      <input type="number" name="qty" placeholder="qty" style="flex:0;max-width:70px">
+      <input type="number" name="price" step="0.01" placeholder="£ unit" style="flex:0;max-width:100px">
+    </div>
+    {% endif %}
+  </div>
+  <a href="#" id="addLine" style="font-size:13px">+ add line</a>
+
+  <div class="quote-box" style="margin-top:14px">
+    <div class="muted">Total</div>
+    <div id="total" class="big">£0.00</div>
+  </div>
+
+  <label for="notes">Note on the quote</label>
+  <input type="text" id="notes" name="notes" placeholder="e.g. Payable by the 1st of the month">
+
+  <div class="btn-row" style="margin-top:12px">
+    <button class="btn" type="submit">Create quote</button>
+    <button class="btn secondary" type="submit" name="send" value="1">Create &amp; mark as sent</button>
+  </div>
+</form>
+
+{% block scripts %}
+<script>
+  function recalc() {
+    let t = 0;
+    document.querySelectorAll('#lines .line').forEach(r => {
+      const q = parseFloat(r.querySelector('[name=qty]').value) || 0;
+      const p = parseFloat(r.querySelector('[name=price]').value) || 0;
+      t += q * p;
+    });
+    document.getElementById('total').textContent = '£' + t.toFixed(2);
+  }
+  document.getElementById('invForm').addEventListener('input', recalc);
+  document.getElementById('addLine').addEventListener('click', e => {
+    e.preventDefault();
+    const d = document.createElement('div');
+    d.className = 'row line'; d.style.marginBottom = '6px';
+    d.innerHTML = '<input type="text" name="desc" placeholder="description" style="flex:3">'
+      + '<input type="number" name="qty" placeholder="qty" style="flex:0;max-width:70px">'
+      + '<input type="number" name="price" step="0.01" placeholder="£ unit" style="flex:0;max-width:100px">';
+    document.getElementById('lines').appendChild(d);
+  });
+  recalc();
+</script>
+{% endblock %}
+{% endblock %}

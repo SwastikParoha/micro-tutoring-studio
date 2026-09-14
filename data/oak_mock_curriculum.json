@@ -1,0 +1,493 @@
+{
+  "_meta": {
+    "source": "Bundled mock modelled on the Oak National Academy Open Curriculum API",
+    "licence": "Structure only. Real content is Open Government Licence v3.0 via https://open-api.thenational.academy",
+    "national_curriculum": "National Curriculum in England (2014), Key Stages 1 and 2"
+  },
+  "units": [
+    {
+      "slug": "fractions-ks2-y3",
+      "title": "Fractions",
+      "subject": "maths",
+      "key_stage": 2,
+      "year_group": 3,
+      "national_curriculum_refs": [
+        "Ma3/2.4a count up and down in tenths",
+        "Ma3/2.4b recognise, find and write fractions of a discrete set of objects",
+        "Ma3/2.4c recognise and use fractions as numbers: unit fractions and non-unit fractions with small denominators",
+        "Ma3/2.4d recognise and show, using diagrams, equivalent fractions with small denominators",
+        "Ma3/2.4e compare and order unit fractions, and fractions with the same denominators"
+      ],
+      "learning_objectives": [
+        "Understand that a fraction describes equal parts of a whole",
+        "Name unit fractions (1/2, 1/3, 1/4, 1/5) from diagrams and real objects",
+        "Find a unit fraction of a small quantity by sharing equally (e.g. 1/4 of 12)",
+        "Recognise that the larger the denominator, the smaller each equal part",
+        "Identify simple equivalent fractions using diagrams (e.g. 1/2 = 2/4)",
+        "Compare and order unit fractions and fractions with the same denominator"
+      ],
+      "key_vocabulary": ["whole", "equal parts", "numerator", "denominator", "unit fraction", "equivalent"],
+      "misconceptions": [
+        {
+          "misconception": "Thinks 1/4 is larger than 1/2 because 4 is larger than 2.",
+          "why": "Pupils apply whole-number reasoning to denominators.",
+          "response": "Use identical shapes (pizzas/chocolate bars) cut into 2 vs 4 equal parts; physically compare one piece from each."
+        },
+        {
+          "misconception": "Counts parts without checking they are equal.",
+          "why": "The word 'parts' is taken to mean any parts, not equal parts.",
+          "response": "Show a shape split into unequal parts and ask 'is the shaded bit really one third?'. Fold paper strips to prove equality."
+        },
+        {
+          "misconception": "Reads 3/4 as 'three and four' or 'three fours'.",
+          "why": "Fraction notation is unfamiliar; the bar is ignored.",
+          "response": "Model the language 'three quarters = 3 out of 4 equal parts'; link numerator to count, denominator to part-size."
+        },
+        {
+          "misconception": "Believes a fraction of a set must be a fraction, not a whole number.",
+          "why": "Confusion between the fraction (operator) and the answer.",
+          "response": "Share 12 counters into 4 equal groups; 1/4 of 12 = 3, a whole number."
+        }
+      ],
+      "prerequisites": ["Equal sharing / division by 2, 3, 4", "Doubling and halving small numbers"],
+      "lessons": [
+        {"slug": "understanding-the-whole-and-equal-parts", "title": "Understanding the whole and equal parts"},
+        {"slug": "naming-unit-fractions", "title": "Naming unit fractions from diagrams"},
+        {"slug": "unit-fraction-of-a-quantity", "title": "Finding a unit fraction of a quantity"},
+        {"slug": "comparing-unit-fractions", "title": "Comparing and ordering unit fractions"},
+        {"slug": "equivalent-fractions-with-diagrams", "title": "Equivalent fractions using diagrams"}
+      ],
+      "baseline_questions": [
+        "Shade 1/3 of a shape divided into 3 equal parts.",
+        "What fraction of these 4 stars is shaded? (1 shaded)",
+        "Find 1/4 of 8 counters.",
+        "Which is bigger: 1/2 or 1/5? Explain how you know.",
+        "Fill in the blank: 1/2 = ?/4",
+        "Write the fraction 'three quarters' using numbers.",
+        "Put these in order, smallest first: 1/2, 1/4, 1/3."
+      ]
+    },
+    {
+      "slug": "addition-subtraction-ks1-y2",
+      "title": "Addition and subtraction within 100",
+      "subject": "maths",
+      "key_stage": 1,
+      "year_group": 2,
+      "national_curriculum_refs": [
+        "Ma2/2.2a solve problems with addition and subtraction using concrete objects and pictorial representations",
+        "Ma2/2.2b recall and use addition and subtraction facts to 20 fluently, derive related facts to 100",
+        "Ma2/2.2c add and subtract numbers using concrete objects, pictorial representations, and mentally"
+      ],
+      "learning_objectives": [
+        "Recall number bonds to 20 and derive bonds to 100",
+        "Add and subtract a two-digit number and ones",
+        "Add and subtract a two-digit number and tens",
+        "Recognise that addition can be done in any order but subtraction cannot",
+        "Use the inverse relationship between addition and subtraction to check calculations"
+      ],
+      "key_vocabulary": ["ones", "tens", "bond", "inverse", "difference", "sum", "regroup"],
+      "misconceptions": [
+        {
+          "misconception": "Thinks subtraction is commutative (24 - 6 same as 6 - 24).",
+          "why": "Over-generalises the 'any order' rule from addition.",
+          "response": "Use a number line and counters: you cannot take 24 away from 6. Model both directions."
+        },
+        {
+          "misconception": "Forgets to regroup (exchange) a ten when the ones digit is too small, e.g. 32 - 5 = 33.",
+          "why": "Subtracts the smaller digit from the larger regardless of position.",
+          "response": "Use base-ten blocks; exchange one ten for ten ones before subtracting."
+        },
+        {
+          "misconception": "Adds tens to ones, e.g. 34 + 20 = 36 or 54.",
+          "why": "Place value of the added number is not tracked.",
+          "response": "Partition: 34 + 20 -> 30 + 20 + 4. Use a hundred square to jump in tens."
+        }
+      ],
+      "prerequisites": ["Number bonds to 10", "Counting in tens from any number", "Partitioning two-digit numbers"],
+      "lessons": [
+        {"slug": "number-bonds-to-20-and-100", "title": "Number bonds to 20 and 100"},
+        {"slug": "adding-a-two-digit-number-and-ones", "title": "Adding a two-digit number and ones"},
+        {"slug": "adding-and-subtracting-tens", "title": "Adding and subtracting tens"},
+        {"slug": "subtraction-with-regrouping", "title": "Subtraction with regrouping"},
+        {"slug": "checking-with-the-inverse", "title": "Checking with the inverse operation"}
+      ],
+      "baseline_questions": [
+        "What goes with 7 to make 20?",
+        "34 + 5 = ?",
+        "58 - 30 = ?",
+        "Work out 42 - 7 using regrouping.",
+        "Is 6 - 24 possible? Explain.",
+        "Check 45 + 23 = 68 using subtraction.",
+        "There are 27 apples. 40 more arrive. How many now?"
+      ]
+    },
+    {
+      "slug": "place-value-ks2-y4",
+      "title": "Place value to 10,000",
+      "subject": "maths",
+      "key_stage": 2,
+      "year_group": 4,
+      "national_curriculum_refs": [
+        "Ma4/2.1a count in multiples of 6, 7, 9, 25 and 1000",
+        "Ma4/2.1c recognise the place value of each digit in a four-digit number",
+        "Ma4/2.1d order and compare numbers beyond 1000",
+        "Ma4/2.1f round any number to the nearest 10, 100 or 1000"
+      ],
+      "learning_objectives": [
+        "State the value of each digit in a four-digit number",
+        "Partition four-digit numbers in standard and non-standard ways",
+        "Compare and order numbers beyond 1000 using < > =",
+        "Round four-digit numbers to the nearest 10, 100 and 1000",
+        "Count on and back in 1000s across boundaries"
+      ],
+      "key_vocabulary": ["thousands", "hundreds", "tens", "ones", "digit", "round", "compare", "partition"],
+      "misconceptions": [
+        {
+          "misconception": "Reads 3046 as 'three hundred and forty-six' or ignores the zero.",
+          "why": "Zero as a place holder is not understood.",
+          "response": "Build the number with place-value counters and a place-value grid; discuss why the zero must stay."
+        },
+        {
+          "misconception": "Rounds 3450 to 3000 (rounds to nearest 1000 by looking at hundreds only, or 'rounds down when unsure').",
+          "why": "The 'look at the next digit' rule is misapplied.",
+          "response": "Use a number line marked in 1000s; mark 3450 and see which end it is closer to (3450 is halfway -> rounds up to 4000... check the digit being rounded)."
+        },
+        {
+          "misconception": "Thinks a longer number is always larger without checking digits, e.g. compares 999 and 1000 correctly but 2999 and 3001 incorrectly.",
+          "why": "Compares by counting digits, not by place value from the left.",
+          "response": "Line numbers up in a place-value grid and compare from the highest column."
+        }
+      ],
+      "prerequisites": ["Place value to 1000 (Year 3)", "Counting in 10s, 100s"],
+      "lessons": [
+        {"slug": "value-of-each-digit-4-digit", "title": "The value of each digit in a four-digit number"},
+        {"slug": "partitioning-flexibly", "title": "Partitioning four-digit numbers flexibly"},
+        {"slug": "comparing-and-ordering-beyond-1000", "title": "Comparing and ordering beyond 1000"},
+        {"slug": "rounding-to-10-100-1000", "title": "Rounding to the nearest 10, 100 and 1000"}
+      ],
+      "baseline_questions": [
+        "What is the value of the 4 in 5423?",
+        "Partition 6207 into thousands, hundreds, tens and ones.",
+        "Write < or >: 4109 __ 4190.",
+        "Round 3762 to the nearest 100.",
+        "Round 8500 to the nearest 1000.",
+        "1000 more than 4620 is ?",
+        "Order: 2999, 3010, 2909, 3100 (smallest first)."
+      ]
+    },
+    {
+      "slug": "multiplication-division-ks2-y3",
+      "title": "Multiplication and division (3, 4 and 8 times tables)",
+      "subject": "maths",
+      "key_stage": 2,
+      "year_group": 3,
+      "national_curriculum_refs": [
+        "Ma3/2.3a recall and use multiplication and division facts for the 3, 4 and 8 multiplication tables",
+        "Ma3/2.3c solve problems, including missing number problems, involving multiplication and division"
+      ],
+      "learning_objectives": [
+        "Recall 3, 4 and 8 times-table facts",
+        "Understand multiplication as repeated addition and as arrays",
+        "Understand division as sharing and as grouping",
+        "Use the inverse relationship between multiplication and division",
+        "Solve missing-number problems (e.g. 4 x ? = 24)"
+      ],
+      "key_vocabulary": ["multiply", "groups of", "array", "product", "divide", "share", "inverse"],
+      "misconceptions": [
+        {
+          "misconception": "Thinks division is commutative (12 / 3 = 3 / 12).",
+          "why": "Transfers the 'any order' rule from multiplication.",
+          "response": "Act out sharing 12 sweets between 3 people vs 3 sweets between 12 people."
+        },
+        {
+          "misconception": "Confuses the 4 and 8 times tables (doubles 4x once too few / too many times).",
+          "why": "The 'double the 4s to get the 8s' shortcut is applied loosely.",
+          "response": "Line up 4x and 8x arrays; show 8x is exactly double 4x for the same multiplier."
+        }
+      ],
+      "prerequisites": ["2, 5 and 10 times tables", "Equal grouping and sharing"],
+      "lessons": [
+        {"slug": "arrays-and-the-3-times-table", "title": "Arrays and the 3 times table"},
+        {"slug": "the-4-and-8-times-tables", "title": "The 4 and 8 times tables"},
+        {"slug": "division-as-grouping", "title": "Division as grouping"},
+        {"slug": "missing-number-problems", "title": "Missing-number problems"}
+      ],
+      "baseline_questions": [
+        "8 x 3 = ?",
+        "Draw an array for 4 x 5.",
+        "24 / 8 = ?",
+        "Fill in: 4 x ? = 28.",
+        "Is 12 / 3 the same as 3 / 12? Explain.",
+        "There are 32 pencils shared equally into 8 pots. How many per pot?",
+        "Write a division fact from 6 x 4 = 24."
+      ]
+    },
+    {
+      "slug": "recount-writing-ks2-y3",
+      "title": "Writing a recount",
+      "subject": "english",
+      "key_stage": 2,
+      "year_group": 3,
+      "national_curriculum_refs": [
+        "En3/3.1 plan writing by discussing and recording ideas",
+        "En3/3.2a use conjunctions, adverbs and prepositions to express time and cause",
+        "En3/3.3 proof-read for spelling and punctuation errors"
+      ],
+      "learning_objectives": [
+        "Sequence events in chronological order using time conjunctions (first, then, after that, finally)",
+        "Write in the past tense consistently",
+        "Write in the first person for a personal recount",
+        "Use paragraphs to group related events",
+        "Proof-read for full stops and capital letters"
+      ],
+      "key_vocabulary": ["recount", "chronological", "time conjunction", "past tense", "first person", "paragraph"],
+      "misconceptions": [
+        {
+          "misconception": "Slips between past and present tense within a sentence.",
+          "why": "Narrating a vivid memory pulls the writer into the present.",
+          "response": "Highlight every verb in one paragraph and check each is past tense; re-read aloud."
+        },
+        {
+          "misconception": "Writes one long sentence joined by 'and then ... and then'.",
+          "why": "Spoken storytelling habits transfer to writing.",
+          "response": "Give a bank of time conjunctions; rewrite a run-on sentence as three sentences."
+        },
+        {
+          "misconception": "Thinks a recount needs an exciting made-up ending.",
+          "why": "Confuses recount with narrative/story.",
+          "response": "Compare a recount (what really happened) with a story; a recount ends with how you felt or a closing thought."
+        }
+      ],
+      "prerequisites": ["Forming sentences with capital letters and full stops", "Simple past-tense verbs"],
+      "lessons": [
+        {"slug": "features-of-a-recount", "title": "Features of a recount"},
+        {"slug": "planning-events-in-order", "title": "Planning events in order"},
+        {"slug": "time-conjunctions", "title": "Using time conjunctions"},
+        {"slug": "writing-and-proofreading-a-recount", "title": "Writing and proof-reading a recount"}
+      ],
+      "baseline_questions": [
+        "List three time conjunctions you could use in a recount.",
+        "Rewrite in the past tense: 'I go to the park and I play football.'",
+        "Put these events in order: got home, woke up, ate breakfast, went to school.",
+        "Correct the punctuation: 'on saturday we went to the zoo we saw lions'",
+        "Write an opening sentence for a recount about a school trip.",
+        "Why does a recount use the first person?"
+      ]
+    },
+    {
+      "slug": "phonics-alternative-graphemes-ks1-y1",
+      "title": "Alternative graphemes for known phonemes",
+      "subject": "english",
+      "key_stage": 1,
+      "year_group": 1,
+      "national_curriculum_refs": [
+        "En1/1 apply phonic knowledge and skills to decode words",
+        "En1/2 respond speedily with the correct sound to graphemes for all 40+ phonemes, including alternatives"
+      ],
+      "learning_objectives": [
+        "Blend sounds to read words containing taught GPCs",
+        "Recognise that one sound can be written in more than one way (ai / ay / a-e)",
+        "Read common exception words (the, said, one, was)",
+        "Segment spoken words into sounds for spelling"
+      ],
+      "key_vocabulary": ["phoneme", "grapheme", "digraph", "split digraph", "blend", "segment"],
+      "misconceptions": [
+        {
+          "misconception": "Sounds out every letter of a digraph separately (s-h-i-p as four sounds).",
+          "why": "One-letter-one-sound expectation from early phonics.",
+          "response": "Underline the digraph as one unit; use sound buttons with a bar under 'sh'."
+        },
+        {
+          "misconception": "Tries to sound out common exception words letter by letter (s-ai-d).",
+          "why": "The decoding strategy is applied to non-decodable words.",
+          "response": "Teach the tricky part explicitly; 'say the sounds you can, learn the bit that's odd'."
+        }
+      ],
+      "prerequisites": ["Phase 3 GPCs", "Oral blending and segmenting"],
+      "lessons": [
+        {"slug": "digraphs-as-one-sound", "title": "Reading digraphs as one sound"},
+        {"slug": "alternative-spellings-of-ai", "title": "Alternative spellings of the /ai/ sound"},
+        {"slug": "split-digraphs", "title": "Split digraphs (a-e, i-e, o-e)"},
+        {"slug": "common-exception-words", "title": "Reading common exception words"}
+      ],
+      "baseline_questions": [
+        "Read: rain, play, cake. What sound do they share?",
+        "How many sounds are in 'ship'?",
+        "Read these tricky words: the, said, was, one.",
+        "Segment 'night' into sounds.",
+        "Write the /ai/ sound three different ways.",
+        "Underline the digraph: chin, thing, boat."
+      ]
+    },
+    {
+      "slug": "states-of-matter-water-cycle-ks2-y4",
+      "title": "States of matter and the water cycle",
+      "subject": "science",
+      "key_stage": 2,
+      "year_group": 4,
+      "national_curriculum_refs": [
+        "Sc4/3.1a compare and group materials together, according to whether they are solids, liquids or gases",
+        "Sc4/3.1b observe that some materials change state when they are heated or cooled, and measure or research the temperature at which this happens (°C)",
+        "Sc4/3.1c identify the part played by evaporation and condensation in the water cycle and associate the rate of evaporation with temperature"
+      ],
+      "learning_objectives": [
+        "Sort everyday materials into solids, liquids and gases by their properties",
+        "Describe melting and freezing as changes of state caused by heating or cooling",
+        "Measure temperature in degrees Celsius using a thermometer",
+        "Explain evaporation and condensation with everyday examples",
+        "Describe the water cycle using the words evaporation, condensation, precipitation and collection"
+      ],
+      "key_vocabulary": ["solid", "liquid", "gas", "state", "melting", "freezing", "evaporation", "condensation", "water cycle", "temperature"],
+      "misconceptions": [
+        {
+          "misconception": "Thinks a gas is not a material or 'not really there' because you often cannot see it.",
+          "why": "Only visible, touchable things are counted as matter.",
+          "response": "Trap air in a sealed bag or syringe and push on it; the air pushes back, so it is a material that takes up space."
+        },
+        {
+          "misconception": "Thinks that when a puddle dries up the water has 'disappeared' or been destroyed.",
+          "why": "Evaporation is invisible, so the water seems to vanish.",
+          "response": "Cover a warm cup of water with a cold lid; watch droplets form. The water became a gas and then condensed back – it was never destroyed."
+        },
+        {
+          "misconception": "Thinks steam and the bubbles in boiling water are 'air'.",
+          "why": "Any gas is assumed to be air.",
+          "response": "Explain the bubbles are water vapour (water as a gas); the visible cloud above is tiny droplets that have already condensed."
+        },
+        {
+          "misconception": "Thinks condensation on a cold glass is water leaking through the glass.",
+          "why": "No visible source, so it must come from inside.",
+          "response": "Use a dry, sealed bottle of cold water; droplets still form on the outside – they come from water vapour in the air cooling down."
+        }
+      ],
+      "prerequisites": ["Everyday materials and their uses (Year 2)", "Reading a scale / simple measuring"],
+      "lessons": [
+        {"slug": "solids-liquids-gases", "title": "Comparing solids, liquids and gases"},
+        {"slug": "melting-and-freezing", "title": "Melting and freezing"},
+        {"slug": "measuring-temperature", "title": "Measuring temperature in °C"},
+        {"slug": "evaporation-and-condensation", "title": "Evaporation and condensation"},
+        {"slug": "the-water-cycle", "title": "Putting it together: the water cycle"}
+      ],
+      "baseline_questions": [
+        "Sort these into solid, liquid or gas: milk, a brick, the air in a balloon, sand, orange juice.",
+        "What is it called when a solid turns into a liquid? What causes it?",
+        "Water freezes at what temperature in °C?",
+        "Give one everyday example of evaporation and one of condensation.",
+        "Why do water droplets form on the outside of a cold drink?",
+        "Put the water cycle in order: condensation, evaporation, precipitation, collection.",
+        "A puddle disappears on a sunny day. Explain where the water has gone."
+      ]
+    },
+    {
+      "slug": "rivers-ks2-y3",
+      "title": "Rivers: what's special about them?",
+      "subject": "geography",
+      "key_stage": 2,
+      "year_group": 3,
+      "national_curriculum_refs": [
+        "Ge2/1.3b describe and understand key aspects of physical geography, including rivers and the water cycle",
+        "Ge2/1.4a use maps, atlases, globes and digital mapping to locate countries and describe features studied",
+        "Ge2/1.4b use the eight points of a compass and locational language to describe features and routes"
+      ],
+      "learning_objectives": [
+        "Name the main features of a river: source, tributary, mouth, meander, bank",
+        "Describe how a river changes from its source to its mouth",
+        "Explain how rivers shape the land through erosion and deposition",
+        "Locate major UK rivers on a map (Thames, Severn, Trent)",
+        "Explain why flooding happens and some ways people manage it"
+      ],
+      "key_vocabulary": ["source", "mouth", "tributary", "meander", "erosion", "deposition", "flood", "channel"],
+      "misconceptions": [
+        {
+          "misconception": "Thinks a river's source is always a lake or the sea.",
+          "why": "Rivers are seen only where they are large; the small start is overlooked.",
+          "response": "Trace a real river on a map from a spring or hillside stream; the source is usually high ground, often just a trickle."
+        },
+        {
+          "misconception": "Thinks rivers always flow from north to south (down the map).",
+          "why": "'Down' on a page is confused with downhill.",
+          "response": "Show rivers flowing in every direction on a map; water flows from higher land to lower land, not from the top of the page."
+        },
+        {
+          "misconception": "Thinks the water in a river is the same water sitting still, like a bath.",
+          "why": "A river looks like a long pond.",
+          "response": "Float a leaf on a stream; the water is always moving from source to mouth and is replaced by rain and tributaries."
+        }
+      ],
+      "prerequisites": ["The water cycle (evaporation, condensation, precipitation)", "Using a simple map key"],
+      "lessons": [
+        {"slug": "introducing-rivers", "title": "Introducing rivers and their features"},
+        {"slug": "river-source-to-mouth", "title": "From source to mouth"},
+        {"slug": "rivers-shaping-land", "title": "How rivers shape the land"},
+        {"slug": "uk-rivers", "title": "Rivers of the UK"},
+        {"slug": "flooding", "title": "Flooding: causes and responses"}
+      ],
+      "baseline_questions": [
+        "Label these river features: source, mouth, tributary, meander.",
+        "Where does a river usually start – high ground or low ground?",
+        "Name two rivers in the UK.",
+        "Explain one way a river changes the land as it flows.",
+        "Give one cause of river flooding and one way people try to reduce the damage.",
+        "True or false: rivers always flow from the top of a map to the bottom. Explain."
+      ]
+    },
+    {
+      "slug": "the-vikings-ks2-y4",
+      "title": "The Vikings: why did they come to Britain?",
+      "subject": "history",
+      "key_stage": 2,
+      "year_group": 4,
+      "national_curriculum_refs": [
+        "Hi2/1.8 the Viking and Anglo-Saxon struggle for the Kingdom of England to the time of Edward the Confessor",
+        "Hi2/1.9a develop a chronologically secure knowledge and understanding of British history",
+        "Hi2/1.9c understand how our knowledge of the past is constructed from a range of sources"
+      ],
+      "learning_objectives": [
+        "Place the Viking period on a timeline in relation to the Romans and Anglo-Saxons",
+        "Give reasons why the Vikings left Scandinavia and came to Britain",
+        "Describe Viking raids and, later, Viking settlement",
+        "Explain how we know about the Vikings from archaeology and written sources",
+        "Explain that sources can be biased, e.g. accounts written by monks"
+      ],
+      "key_vocabulary": ["raid", "settle", "monastery", "longship", "Danelaw", "archaeology", "source", "chronology"],
+      "misconceptions": [
+        {
+          "misconception": "Thinks the Vikings only ever raided and never settled or farmed.",
+          "why": "The dramatic raid stories are the ones most often told.",
+          "response": "Study place-name and excavation evidence (e.g. York/Jorvik); many Vikings farmed, traded and lived here for generations."
+        },
+        {
+          "misconception": "Thinks 'the Vikings' were a single country or united army.",
+          "why": "One label is taken to mean one group.",
+          "response": "Map Scandinavia: Vikings came from areas that became Norway, Denmark and Sweden, in many separate groups."
+        },
+        {
+          "misconception": "Treats a monk's written account as simply 'what happened'.",
+          "why": "Written = true; pupils don't yet weigh who wrote it and why.",
+          "response": "Compare a monk's account of a raid with archaeological evidence; discuss why a victim of the raid might exaggerate."
+        },
+        {
+          "misconception": "Thinks all Vikings wore horned helmets.",
+          "why": "A popular modern image repeated in cartoons.",
+          "response": "There is no archaeological evidence for horned helmets in battle; show a real find (e.g. the Gjermundbu helmet)."
+        }
+      ],
+      "prerequisites": ["The Anglo-Saxons in Britain", "Reading a timeline with BC/AD or BCE/CE"],
+      "lessons": [
+        {"slug": "who-were-the-vikings", "title": "Who were the Vikings and where did they come from?"},
+        {"slug": "why-leave-scandinavia", "title": "Why did the Vikings leave Scandinavia?"},
+        {"slug": "raids-and-monasteries", "title": "Raids: Lindisfarne and the monasteries"},
+        {"slug": "viking-settlement", "title": "From raiding to settling: the Danelaw"},
+        {"slug": "how-do-we-know", "title": "How do we know about the Vikings?"}
+      ],
+      "baseline_questions": [
+        "Put in order on a timeline: Romans, Anglo-Saxons, Vikings.",
+        "Give two reasons the Vikings came to Britain.",
+        "What is the difference between a raid and a settlement?",
+        "Name one type of evidence archaeologists use to learn about the Vikings.",
+        "A monk wrote that a Viking raid was 'the wrath of God'. Why might his account not be completely reliable?",
+        "True or false: all Vikings came from one country. Explain your answer."
+      ]
+    }
+  ]
+}

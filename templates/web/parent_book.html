@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Book a class · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Book a class</h1>
+<p class="sub">Pick any free time below. Times shown are when your tutor is available.</p>
+
+{% if limit %}
+<div class="card" style="margin-bottom:16px">
+  {% set left = limit - used %}
+  {% if left > 0 %}
+    You have <b>{{ left }}</b> of your <b>{{ limit }}</b> included classes left this month.
+  {% else %}
+    You have used all <b>{{ limit }}</b> included classes this month.
+    Any class you book now is an <b>extra</b>.
+  {% endif %}
+  {% if extra_price %}
+    <div class="muted" style="margin-top:4px">Extra classes are
+      <b>£{{ '%.2f'|format(extra_price) }}</b> each and are added to your next invoice.</div>
+  {% endif %}
+  {% if pending %}
+    <div class="muted" style="margin-top:4px">Extra classes booked and not yet invoiced:
+      {{ pending|length }} (£{{ '%.2f'|format(pending|sum(attribute='charge_amount')) }}).</div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if grouped %}
+<form method="post" action="{{ url_for('parent_book') }}">
+  <label for="subject">Subject <span class="muted">(optional)</span></label>
+  <select id="subject" name="subject" style="max-width:240px">
+    <option value="">—</option>
+    {% for s in subjects %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+  </select>
+
+  {% for day, items in grouped %}
+  <h2>{{ day }}</h2>
+  <div class="slot-grid">
+    {% for slot in items %}
+    <label class="slot">
+      <input type="radio" name="slot" value="{{ slot.iso }}" required>
+      <span>{{ slot.time }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  {% if is_extra %}
+  <div class="card" style="border-color:#f0d98c;background:#fff8e6;margin-top:16px">
+    <label style="font-weight:600">
+      <input type="checkbox" name="confirm_extra" value="1" required style="width:auto">
+      I understand this is an extra class and <b>£{{ '%.2f'|format(extra_price) }}</b> will be added
+      to our next invoice.
+    </label>
+  </div>
+  {% endif %}
+
+  <div class="btn-row">
+    <button class="btn" type="submit">{{ 'Book extra class' if is_extra else 'Book this class' }}</button>
+  </div>
+</form>
+{% else %}
+<div class="card muted">No free times in the next few weeks. Please message us and we will find a slot.</div>
+{% endif %}
+{% endblock %}

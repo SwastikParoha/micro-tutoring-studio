@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{{ status.business }}{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('home') }}">🎓 {{ status.business }}</a>
+  <nav>
+    {% if user and user.role == 'admin' %}
+      <a href="{{ url_for('admin_home') }}">Dashboard</a>
+      <a href="{{ url_for('pupils_list') }}">Pupils</a>
+      <a href="{{ url_for('calendar') }}">Calendar</a>
+      <a href="{{ url_for('invoices_all') }}">Invoices</a>
+      <a href="{{ url_for('generate') }}">New workbook</a>
+      <a href="{{ url_for('study_material') }}">Study material</a>
+      <a href="{{ url_for('availability') }}">Availability</a>
+      <a class="btn-nav" href="{{ url_for('pupil_new') }}">+ Register pupil</a>
+      <a href="{{ url_for('account') }}">Account</a>
+      <a href="{{ url_for('logout') }}">Log out</a>
+    {% elif user %}
+      <a href="{{ url_for('parent_home') }}">My child</a>
+      <a href="{{ url_for('parent_book') }}">Book a class</a>
+      <a href="{{ url_for('account') }}">Account</a>
+      <a href="{{ url_for('logout') }}">Log out</a>
+    {% endif %}
+  </nav>
+</header>
+
+{% if user and user.role == 'admin' %}
+<div class="statusbar">
+  <span title="Where curriculum content comes from">📚 {{ status.curriculum }}</span>
+  <span class="{{ 'ok' if status.gemini_ok else 'warn' }}"
+        title="{{ status.gemini_msg }}">
+    {{ '✨ AI lessons: on' if status.gemini_ok else '✎ AI lessons: off (using built-in generator)' }}
+  </span>
+</div>
+{% endif %}
+
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block body %}{% endblock %}
+</main>
+
+<div id="working" class="overlay" hidden>
+  <div class="spinner"></div>
+  <p id="working-text">Working…</p>
+  <p class="muted">This can take up to a minute when AI lessons are on.</p>
+</div>
+
+<script>
+  // Show a "working" overlay on any form marked data-working.
+  document.querySelectorAll('form[data-working]').forEach(function (f) {
+    f.addEventListener('submit', function () {
+      document.getElementById('working-text').textContent = f.dataset.working || 'Working…';
+      document.getElementById('working').hidden = false;
+    });
+  });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

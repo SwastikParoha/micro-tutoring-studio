@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>{{ number }} — {{ student_name }}</title>
+<style>
+  @page { size: A4; margin: 20mm 18mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Trebuchet MS', Verdana, sans-serif; font-size: 11pt; color: #2b2b2b; margin: 0; }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .biz { font-family: 'Comic Sans MS', sans-serif; color: #1b6ca8; font-size: 18pt; }
+  .biz small { display: block; font-family: 'Trebuchet MS'; color: #777; font-size: 9.5pt; }
+  .doc { text-align: right; }
+  .doc h1 { margin: 0; font-size: 20pt; color: #1b6ca8; }
+  .doc .meta { font-size: 10pt; color: #555; margin-top: 4pt; }
+  .parties { display: flex; gap: 40pt; margin: 22pt 0 14pt; }
+  .parties h3 { margin: 0 0 3pt; font-size: 9pt; text-transform: uppercase; letter-spacing: .5pt; color: #999; }
+  table { width: 100%; border-collapse: collapse; margin-top: 8pt; }
+  th { text-align: left; font-size: 9pt; text-transform: uppercase; letter-spacing: .5pt;
+       color: #999; border-bottom: 2px solid #ddd; padding: 6pt 4pt; }
+  td { padding: 8pt 4pt; border-bottom: 1px solid #eee; }
+  td.num, th.num { text-align: right; }
+  .totals { margin-top: 10pt; margin-left: auto; width: 45%; }
+  .totals tr td { border: 0; padding: 4pt 4pt; }
+  .totals .grand td { border-top: 2px solid #1b6ca8; font-size: 13pt; font-weight: bold; color: #1b6ca8; }
+  .note { margin-top: 24pt; font-size: 10pt; color: #555; border-top: 1px solid #eee; padding-top: 10pt; }
+  .status { display: inline-block; padding: 2pt 10pt; border-radius: 10pt; font-size: 9pt;
+            text-transform: uppercase; letter-spacing: .5pt; }
+  .status.draft { background: #eee; color: #666; }
+  .status.sent  { background: #e3f0f7; color: #1b6ca8; }
+  .status.paid  { background: #e9f7ec; color: #237a37; }
+</style>
+</head>
+<body>
+<div class="head">
+  <div class="biz">{{ business_name }}<small>Primary tutoring</small></div>
+  <div class="doc">
+    <h1>{{ 'INVOICE' if invoice.status == 'paid' or invoice.status == 'sent' else 'QUOTE' }}</h1>
+    <div class="meta">
+      {{ invoice.number }}<br>
+      Issued: {{ invoice.issued_on }}<br>
+      {% if invoice.due_on %}Due: {{ invoice.due_on }}<br>{% endif %}
+      <span class="status {{ invoice.status }}">{{ invoice.status }}</span>
+    </div>
+  </div>
+</div>
+
+<div class="parties">
+  <div>
+    <h3>Bill to</h3>
+    {{ student.guardian_name or 'Parent / Guardian' }}<br>
+    {% if student.address %}{{ student.address }}<br>{% endif %}
+    {% if student.guardian_email %}{{ student.guardian_email }}<br>{% endif %}
+    {% if student.guardian_contact %}{{ student.guardian_contact }}{% endif %}
+  </div>
+  <div>
+    <h3>For</h3>
+    {{ student.full_name }}{% if student.year_group %} · Year {{ student.year_group }}{% endif %}<br>
+    {{ invoice.period }}
+  </div>
+</div>
+
+<table>
+  <tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr>
+  {% for li in items %}
+  <tr>
+    <td>{{ li.description }}</td>
+    <td class="num">{{ li.qty }}</td>
+    <td class="num">£{{ '%.2f'|format(li.unit_price) }}</td>
+    <td class="num">£{{ '%.2f'|format(li.amount) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<table class="totals">
+  <tr><td>Subtotal</td><td class="num">£{{ '%.2f'|format(invoice.subtotal) }}</td></tr>
+  <tr class="grand"><td>Total</td><td class="num">£{{ '%.2f'|format(invoice.total) }}</td></tr>
+</table>
+
+<div class="note">
+  {% if invoice.notes %}{{ invoice.notes }}<br><br>{% endif %}
+  Payment by {{ payment_method }}{% if payment_schedule %}, {{ payment_schedule }}{% endif %}.
+  Thank you for choosing {{ business_name }}.
+</div>
+</body>
+</html>

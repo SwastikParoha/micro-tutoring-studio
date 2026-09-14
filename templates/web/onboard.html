@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Add a pupil · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Add a pupil</h1>
+<p class="sub">Paste your notes from the demo lesson, <b>and/or upload a photo</b> of the
+pupil's work. The Assessor reads it and pulls out their strengths, weak points, and a
+starting difficulty level. Anything it can't find, you can type in.</p>
+
+<form method="post" enctype="multipart/form-data" class="card" data-working="Reading the assessment…">
+  <label for="notes">Notes from the demo lesson</label>
+  <textarea id="notes" name="notes" placeholder="e.g. Ava Patel, Year 3. Really into pizza and football.
+Thinks 1/4 is bigger than 1/2. Struggled to find 1/4 of 12. Got about 6/15 on the fractions check.">{{ form.notes if form }}</textarea>
+  <div class="hint">Write it however you like — full sentences or bullet points.</div>
+
+  <label for="worksheet">Photo of their work <span class="muted">(optional — jpg or png)</span></label>
+  <input type="file" id="worksheet" name="worksheet" accept="image/*">
+  <div class="hint">A photo of a completed worksheet or test. The AI looks at what they got
+  right and wrong and how — it makes the first workbook much more accurate.</div>
+
+  <div class="row">
+    <div>
+      <label for="name">Pupil name <span class="muted">(optional)</span></label>
+      <input type="text" id="name" name="name" value="{{ form.name if form }}">
+    </div>
+    <div>
+      <label for="year">Year group <span class="muted">(optional)</span></label>
+      <input type="number" id="year" name="year" min="1" max="6" value="{{ form.year if form }}">
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label for="interests">Interests <span class="muted">(optional)</span></label>
+      <input type="text" id="interests" name="interests" placeholder="football, pizza, Minecraft"
+             value="{{ form.interests if form }}">
+    </div>
+    <div>
+      <label for="guardian">Parent / guardian <span class="muted">(optional)</span></label>
+      <input type="text" id="guardian" name="guardian" value="{{ form.guardian if form }}">
+    </div>
+  </div>
+
+  <div class="btn-row"><button class="btn" type="submit">Read it &amp; save pupil</button></div>
+</form>
+
+{% if analysis %}
+<div class="card">
+  <h2 style="margin-top:0">What we found</h2>
+  <p><b>Subject:</b> {{ analysis.subject }} &nbsp;·&nbsp; <b>Score:</b> {{ analysis.overall_score or '—' }}
+     &nbsp;·&nbsp; <b>Starting level:</b> {{ analysis.difficulty_recommendation }}</p>
+  <p>{{ analysis.tutor_summary }}</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,33 @@
+# Core
+python-dotenv>=1.0.1
+requests>=2.32.0
+
+# LLM + Agent framework  (only needed when GEMINI_API_KEY is set)
+google-genai>=1.0.0
+crewai>=0.80.0            # optional: only for `generate-week --crewai`
+
+# Web interface  (python main.py serve)
+Flask>=3.0.0
+
+# Database
+SQLAlchemy>=2.0.30       # optional; the app uses the stdlib sqlite3
+
+# Curriculum data: `python main.py setup` downloads the Oak National Academy
+# bulk dataset (SQLite, ~40 MB, Open Government Licence) - not a pip package.
+# It also downloads the real National Curriculum documents + past SATs papers
+# (~24 MB, gov.uk, Open Government Licence) - see agents/study_materials.py.
+pypdf>=4.2.0               # extracts text from the curriculum PDFs for AI grounding
+
+# PDF generation (HTML/CSS -> PDF)
+weasyprint>=62.3          # primary engine; needs the GTK runtime on Windows
+markdown>=3.7
+jinja2>=3.1.4
+# Optional PDF fallback when WeasyPrint's native libs are unavailable
+# (e.g. Windows without GTK). After install run: playwright install chromium
+playwright>=1.44.0
+
+# Nice-to-have
+rich>=13.7.0
+
+# Production hosting only (see docs/Deployment-Guide.pdf). Not needed to run locally.
+gunicorn>=21.2.0          # optional: WSGI server for Oracle Cloud / Linux VMs

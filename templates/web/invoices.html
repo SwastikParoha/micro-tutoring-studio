@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Invoices · {{ status.business }}{% endblock %}
+{% block body %}
+<h1>Invoices &amp; quotes</h1>
+<div class="btn-row">
+  <a class="btn small {{ 'secondary' if status }}" href="{{ url_for('invoices_all') }}">All</a>
+  <a class="btn small {{ 'secondary' if status != 'draft' }}" href="{{ url_for('invoices_all', status='draft') }}">Draft</a>
+  <a class="btn small {{ 'secondary' if status != 'sent' }}" href="{{ url_for('invoices_all', status='sent') }}">Sent</a>
+  <a class="btn small {{ 'secondary' if status != 'paid' }}" href="{{ url_for('invoices_all', status='paid') }}">Paid</a>
+</div>
+
+{% if invoices %}
+<div class="card">
+  <table>
+    <tr><th>Number</th><th>Pupil</th><th>Period</th><th>Issued</th><th>Status</th><th>Total</th></tr>
+    {% for i in invoices %}
+    <tr>
+      <td><a href="{{ url_for('invoice_view', invoice_id=i.id) }}">{{ i.number }}</a></td>
+      <td>{{ i.student_name }}</td>
+      <td>{{ i.period }}</td>
+      <td>{{ i.issued_on }}</td>
+      <td><span class="pill-status {{ i.status }}">{{ i.status }}</span></td>
+      <td><b>£{{ '%.2f'|format(i.total) }}</b></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% else %}
+<div class="card muted">No invoices{% if status %} with status “{{ status }}”{% endif %} yet.
+  Create one from a pupil's page.</div>
+{% endif %}
+{% endblock %}

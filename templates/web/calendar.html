@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Calendar · {{ status.business }}{% endblock %}
+{% block body %}
+<div class="section-head">
+  <h1>Calendar</h1>
+  <span>
+    <a class="btn small secondary" href="{{ url_for('calendar', start=prev) }}">← Previous week</a>
+    <a class="btn small secondary" href="{{ url_for('calendar') }}">This week</a>
+    <a class="btn small secondary" href="{{ url_for('calendar', start=nextw) }}">Next week →</a>
+  </span>
+</div>
+<p class="sub">Mark <b>Arrived</b> when a pupil comes in and <b>Departed</b> when they leave —
+  the family sees it live on their page.</p>
+
+<div class="cal-week">
+  {% for d in days %}
+  {% set key = d.isoformat() %}
+  <div class="cal-day {{ 'is-today' if d == today }}">
+    <div class="cal-date">{{ d.strftime('%a %d %b') }}</div>
+    {% for c in by_day.get(key, []) %}
+    <div class="cal-slot status-{{ c.status }}">
+      <div class="t">{{ c.starts_at[11:16] }} · {{ c.duration_min }}m</div>
+      <div><a href="{{ url_for('pupil', pupil_id=c.student_id) }}">{{ c.student_name }}</a></div>
+      {% if c.subject %}<div class="muted">{{ c.subject }}</div>{% endif %}
+      <div class="muted">{{ c.status }}{% if c.booked_by == 'parent' %} · family booked{% endif %}</div>
+      <div class="cal-actions">
+        {% if c.status == 'booked' %}
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='arrived') }}">
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <button class="btn small" type="submit">Arrived</button></form>
+        {% elif c.status == 'arrived' %}
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='departed') }}">
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <button class="btn small" type="submit">Departed</button></form>
+        {% endif %}
+        {% if c.status in ('booked', 'arrived') %}
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='missed') }}">
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <button class="btn small secondary" type="submit">Missed</button></form>
+        <form method="post" action="{{ url_for('session_action', session_id=c.id, action='cancel') }}"
+              onsubmit="return confirm('Cancel this class?')">
+          <input type="hidden" name="next" value="{{ request.full_path }}">
+          <button class="btn small secondary" type="submit">Cancel</button></form>
+        {% endif %}
+      </div>
+    </div>
+    {% else %}
+    <div class="cal-empty">—</div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
