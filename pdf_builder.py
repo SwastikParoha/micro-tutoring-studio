@@ -97,7 +97,7 @@ def build_pdf(result: dict[str, Any], student: dict[str, Any],
     for engine in (_pdf_weasyprint, _pdf_playwright):
         name = engine.__name__.removeprefix("_pdf_")
         try:
-            engine(html, out_path)
+            engine(html_path if engine is _pdf_playwright else html, out_path)
             print(f"[pdf] Rendered with {name}.")
             return out_path
         except Exception as exc:  # noqa: BLE001
@@ -160,14 +160,22 @@ def _pdf_weasyprint(html: str, out_path: Path) -> None:
         HTML(string=html, base_url=str(config.TEMPLATE_DIR)).write_pdf(str(out_path))
 
 
-def _pdf_playwright(html: str, out_path: Path) -> None:
-    """Headless-Chromium fallback: honours @page CSS via print emulation."""
+def _pdf_playwright(html_path: Path, out_path: Path) -> None:
+    """Headless-Chromium fallback: honours @page CSS via print emulation.
+
+    Navigates to the HTML as a real file:// URL (not page.set_content(), which
+    loads the page at an opaque about:blank-ish origin) - Chromium refuses to
+    load file:// images/assets referenced from a page that wasn't itself
+    opened via file://, so any <img src="file:///..."> silently fails to
+    render under set_content(). Navigating to the file directly keeps local
+    image references (e.g. this screenshot-compilation doc) working.
+    """
     from playwright.sync_api import sync_playwright
 
     with sync_playwright() as p:
         browser = p.chromium.launch()
         page = browser.new_page()
-        page.set_content(html, wait_until="networkidle")
+        page.goto(html_path.resolve().as_uri(), wait_until="networkidle")
         page.emulate_media(media="print")
         page.pdf(path=str(out_path), print_background=True, prefer_css_page_size=True)
         browser.close()
@@ -181,7 +189,10 @@ def _render_to_pdf(html: str, out_path: Path) -> Path:
     html_path.write_text(html, encoding="utf-8")
     for engine in (_pdf_weasyprint, _pdf_playwright):
         try:
-            engine(html, out_path)
+            if engine is _pdf_playwright:
+                engine(html_path, out_path)
+            else:
+                engine(html, out_path)
             return out_path
         except Exception:  # noqa: BLE001
             continue
